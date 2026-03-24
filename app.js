@@ -10,10 +10,12 @@ var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
 var employeeRouter = require('./routes/employee');
 var roleRouter = require('./routes/role');
+var attendanceRouter = require('./routes/attendance');
+
 const { connect } = require('http2');
 
 var app = express();
-
+app.use('/attendance', attendanceRouter);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
