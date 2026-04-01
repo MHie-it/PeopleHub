@@ -1,37 +1,36 @@
 const User = require('../schemas/users');
 const Role = require('../schemas/roles');
 
-const createEmployee = async (req, res) => {
+module.exports.createEmployee = async (req, res) => {
     try {
         const { username, password, email, fullName, roleId } = req.body;
 
-        // Cơ bản: Kiểm tra xem các trường quan trọng đã được gửi lên chưa
+
         if (!username || !password || !email || !roleId) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Vui lòng cung cấp đầy đủ thông tin: username, password, email, roleId" 
+            return res.status(400).json({
+                success: false,
+                message: "Vui lòng cung cấp đầy đủ thông tin: username, password, email, roleId"
             });
         }
 
-        // Kiểm tra xem Role truyền lên có tồn tại không
+
         const roleExists = await Role.findById(roleId);
         if (!roleExists) {
             return res.status(404).json({ success: false, message: "Quyền (Role) không tồn tại" });
         }
 
-        // Kiểm tra xem User đã tồn tại chưa (email hoặc username)
-        const userExists = await User.findOne({ 
-            $or: [{ email: email.toLowerCase() }, { username: username }]
+        const userExists = await User.findOne({
+            $or: [{ email: email }, { username: username }]
         });
-        
+
         if (userExists) {
             return res.status(400).json({ success: false, message: "Tài khoản hoặc email đã tồn tại" });
         }
 
-        // Tạo nhân viên mới
+
         const newEmployee = new User({
             username,
-            password, // Mật khẩu sẽ tự động được băm (hash) nhờ middleware `pre('save')` trong schema users.js
+            password,
             email,
             fullName,
             role: roleId
@@ -39,9 +38,9 @@ const createEmployee = async (req, res) => {
 
         await newEmployee.save();
 
-        return res.status(201).json({ 
-            success: true, 
-            message: "Tạo nhân viên thành công", 
+        return res.status(201).json({
+            success: true,
+            message: "Tạo nhân viên thành công",
             data: {
                 _id: newEmployee._id,
                 username: newEmployee.username,
@@ -56,6 +55,35 @@ const createEmployee = async (req, res) => {
     }
 };
 
-module.exports = {
-    createEmployee
+module.exports.deleteEmployee = async (req, res) => {
+    try {
+        // Có thể lấy id từ body hoặc query
+        const id = req.body.id || req.query.id;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Vui lòng cung cấp id nhân viên cần xóa"
+            });
+        }
+
+        // Tìm và xóa người dùng
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy nhân viên với id đã cung cấp"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Xóa nhân viên thành công",
+            data: { id: deletedUser._id }
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
+    }
 };
