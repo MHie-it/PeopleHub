@@ -57,7 +57,7 @@ module.exports.createEmployee = async (req, res) => {
 
 module.exports.deleteEmployee = async (req, res) => {
     try {
-        // Có thể lấy id từ body hoặc query
+     
         const id = req.body.id || req.query.id;
 
         if (!id) {
@@ -67,7 +67,7 @@ module.exports.deleteEmployee = async (req, res) => {
             });
         }
 
-        // Tìm và xóa người dùng
+        
         const deletedUser = await User.findByIdAndDelete(id);
 
         if (!deletedUser) {
