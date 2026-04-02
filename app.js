@@ -14,7 +14,7 @@ var hrRouter = require('./routes/hr');
 const { connect } = require('http2');
 
 var app = express();
-
+app.use('/attendance', attendanceRouter);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
