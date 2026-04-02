@@ -10,8 +10,7 @@ var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
 var employeeRouter = require('./routes/employee');
 var roleRouter = require('./routes/role');
-var attendanceRouter = require('./routes/attendance');
-
+var hrRouter = require('./routes/hr');
 const { connect } = require('http2');
 
 var app = express();
@@ -31,6 +30,7 @@ app.use('/users', usersRouter);
 
 app.use('/auth', authRouter);
 app.use('/employee', employeeRouter);
+app.use('/hr', hrRouter);
 app.use('/role', roleRouter);
 
 // Connect to MongoDB
