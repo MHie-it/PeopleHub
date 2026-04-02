@@ -83,5 +83,4 @@ const leaveRequestSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-
 module.exports = mongoose.model("leave_requests", leaveRequestSchema);
