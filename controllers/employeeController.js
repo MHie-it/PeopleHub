@@ -46,7 +46,12 @@ module.exports.getAllEmployees = async (req, res) => {
 module.exports.getEmployeeById = async (req, res) => {
     try {
         const { id } = req.params;
-        const employee = await Employee.findById(id)
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "ID nhân viên không hợp lệ" });
+        }
+
+        const employee = await Employee.findOne({ _id: id, isDeleted: false })
             .populate('user', '-password')
             .populate('department')
             .populate('position')
@@ -77,6 +82,13 @@ module.exports.createEmployee = async (req, res) => {
             return res.status(400).json({ success: false, message: "Vui lòng cung cấp đầy đủ thông tin bắt buộc" });
         }
 
+        if (!mongoose.Types.ObjectId.isValid(roleId) ||
+            !mongoose.Types.ObjectId.isValid(department) ||
+            !mongoose.Types.ObjectId.isValid(position) ||
+            (manager && !mongoose.Types.ObjectId.isValid(manager))) {
+            return res.status(400).json({ success: false, message: "ID tham chiếu không hợp lệ (role, department, position hoặc manager)" });
+        }
+
         const roleExists = await Role.findById(roleId);
         if (!roleExists) {
             return res.status(404).json({ success: false, message: "Quyền (Role) không tồn tại" });
@@ -92,32 +104,39 @@ module.exports.createEmployee = async (req, res) => {
             return res.status(400).json({ success: false, message: "Mã nhân viên (Employee Code) đã tồn tại" });
         }
 
+        const session = await mongoose.startSession();
+        let newEmployee;
 
-        const newUser = new User({
-            username,
-            password,
-            email,
-            fullName,
-            role: roleId
-        });
-        await newUser.save();
+        try {
+            await session.withTransaction(async () => {
+                const newUser = new User({
+                    username,
+                    password,
+                    email,
+                    fullName,
+                    role: roleId
+                });
+                await newUser.save({ session });
 
-        const newEmployee = new Employee({
-            employeeCode,
-            user: newUser._id,
-            fullName,
-            dateOfBirth: dateOfBirth || null,
-            gender: gender || "OTHER",
-            phone: phone || "",
-            address: address || "",
-            department,
-            position,
-            manager: manager || null,
-            joinDate,
-            employmentStatus: "ACTIVE"
-        });
-
-        await newEmployee.save();
+                newEmployee = new Employee({
+                    employeeCode,
+                    user: newUser._id,
+                    fullName,
+                    dateOfBirth: dateOfBirth || null,
+                    gender: gender || "OTHER",
+                    phone: phone || "",
+                    address: address || "",
+                    department,
+                    position,
+                    manager: manager || null,
+                    joinDate,
+                    employmentStatus: "ACTIVE"
+                });
+                await newEmployee.save({ session });
+            });
+        } finally {
+            await session.endSession();
+        }
 
         return res.status(201).json({
             success: true,
@@ -135,11 +154,19 @@ module.exports.updateEmployee = async (req, res) => {
         const { id } = req.params;
         const updateData = req.body;
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "ID nhân viên không hợp lệ" });
+        }
+
         delete updateData.user;
         delete updateData.employeeCode;
         delete updateData.isDeleted;
 
-        const updatedEmployee = await Employee.findByIdAndUpdate(id, updateData, { new: true });
+        const updatedEmployee = await Employee.findOneAndUpdate(
+            { _id: id, isDeleted: false },
+            updateData,
+            { new: true, runValidators: true }
+        );
 
         if (!updatedEmployee) {
             return res.status(404).json({ success: false, message: "Không tìm thấy nhân viên" });
@@ -159,8 +186,12 @@ module.exports.deleteEmployee = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const deletedEmployee = await Employee.findByIdAndUpdate(
-            id,
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "ID nhân viên không hợp lệ" });
+        }
+
+        const deletedEmployee = await Employee.findOneAndUpdate(
+            { _id: id, isDeleted: false },
             {
                 isDeleted: true,
                 employmentStatus: "RESIGNED"
@@ -170,6 +201,10 @@ module.exports.deleteEmployee = async (req, res) => {
 
         if (!deletedEmployee) {
             return res.status(404).json({ success: false, message: "Không tìm thấy nhân viên với ID đã cung cấp" });
+        }
+
+        if (deletedEmployee.user) {
+            await User.findByIdAndUpdate(deletedEmployee.user, { isDeleted: true });
         }
 
         return res.status(200).json({
