@@ -12,6 +12,7 @@ var roleRouter = require('./routes/role');
 var hrRouter = require('./routes/hr');
 var positionRouter = require("./routes/positions");
 var attendanceRouter = require('./routes/attendance');
+var employeesRouter = require('./routes/employees');
 const { connect } = require('http2');
 
 var app = express();
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/hr', hrRouter);
 app.use('/role', roleRouter);
+app.use('/employees', employeesRouter);
 
 app.use("/positions", positionRouter);
 
