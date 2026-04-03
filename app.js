@@ -8,9 +8,8 @@ let dotenv = require("dotenv");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
-var employeeRouter = require("./routes/employee");
+var employeeRouter = require("./routes/employees");
 var roleRouter = require("./routes/role");
-var hrRouter = require("./routes/hr");
 var shiftsRouter = require("./routes/shifts");
 var attendanceRouter = require('./routes/attendance');
 const { connect } = require("http2");
@@ -31,7 +30,6 @@ app.use("/users", usersRouter);
 
 app.use("/auth", authRouter);
 app.use("/employee", employeeRouter);
-app.use("/hr", hrRouter);
 app.use("/role", roleRouter);
 app.use("/attendance", attendanceRouter);
 app.use("/shifts", shiftsRouter);
@@ -52,7 +50,7 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
+  res.status(err.status || 500);{}
   res.sendFile(path.join(__dirname, "views", "error.html"));
 });
 
