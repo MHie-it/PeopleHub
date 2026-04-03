@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Attendance = require('../schemas/attendance');
+const Attendance = require('../schemas/attendances');
 
 function getAttendanceDate(now = new Date()) {
   const year = now.getFullYear();

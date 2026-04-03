@@ -4,7 +4,6 @@ let fs = require('fs');
 let path = require('path');
 
 function loadEnv() {
-    // Project đang dùng file `.evn` (không phải `.env`), nên load thủ công theo cả 2 trường hợp.
     const envPath = path.resolve(__dirname, '..', '.env');
     const envPathAlt = path.resolve(__dirname, '..', '.evn');
 
@@ -15,12 +14,13 @@ function loadEnv() {
     }
 }
 
-// Workaround for local DNS resolution issues with MongoDB Atlas SRV records
+
+const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 const connectDB = async () => {
     loadEnv();
 
-    const uri = process.e~nv.MONGOOSEDB_CONNECTION;
+    const uri = process.env.MONGOOSEDB_CONNECTION;
     if (!uri) {
         console.error(
             'Missing `MONGOOSEDB_CONNECTION` in env file. Expected `.env` (or `.evn`) at project root.'

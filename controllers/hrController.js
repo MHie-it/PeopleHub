@@ -55,9 +55,24 @@ module.exports.createEmployee = async (req, res) => {
     }
 };
 
+module.exports.listEmployees = async (req, res) => {
+    try {
+        const employees = await User.find({}).select("-password");
+
+        return res.status(200).json({
+            success: true,
+            message: "Lấy danh sách nhân viên thành công",
+            data: employees
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
+    }
+};
+
 module.exports.deleteEmployee = async (req, res) => {
     try {
-     
+
         const id = req.body.id || req.query.id;
 
         if (!id) {
@@ -67,7 +82,7 @@ module.exports.deleteEmployee = async (req, res) => {
             });
         }
 
-        
+
         const deletedUser = await User.findByIdAndDelete(id);
 
         if (!deletedUser) {
@@ -87,3 +102,5 @@ module.exports.deleteEmployee = async (req, res) => {
         return res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
     }
 };
+
+

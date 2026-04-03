@@ -8,9 +8,9 @@ let dotenv = require('dotenv');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
-var employeeRouter = require('./routes/employee');
 var roleRouter = require('./routes/role');
 var hrRouter = require('./routes/hr');
+var attendanceRouter = require('./routes/attendance');
 const { connect } = require('http2');
 
 var app = express();
@@ -29,7 +29,6 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 app.use('/auth', authRouter);
-app.use('/employee', employeeRouter);
 app.use('/hr', hrRouter);
 app.use('/role', roleRouter);
 
