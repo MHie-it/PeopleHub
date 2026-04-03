@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Attendance = require('../schemas/attendance');
+const Attendance = require('../schemas/attendances');
 
 function getAttendanceDate(now = new Date()) {
   const year = now.getFullYear();
@@ -16,12 +16,10 @@ function getRoleName(req) {
 function resolveEmployeeId(req, res) {
   const roleName = getRoleName(req);
 
-  // Phase của bạn: Employee tự check chính mình
   if (roleName === 'Employee') {
     return req.user[0]._id;
   }
 
-  // HR / Manager / admin có thể check cho người khác
   const { employeeId } = req.body;
   if (!employeeId || !mongoose.isValidObjectId(employeeId)) {
     res.status(400).send({ success: false, message: 'employeeId is invalid' });

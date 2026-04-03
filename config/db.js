@@ -4,7 +4,6 @@ let fs = require('fs');
 let path = require('path');
 
 function loadEnv() {
-    // Project đang dùng file `.evn` (không phải `.env`), nên load thủ công theo cả 2 trường hợp.
     const envPath = path.resolve(__dirname, '..', '.env');
     const envPathAlt = path.resolve(__dirname, '..', '.evn');
 
