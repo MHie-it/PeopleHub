@@ -9,7 +9,6 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
 var roleRouter = require("./routes/role");
-var hrRouter = require("./routes/hr");
 var attendanceRouter = require("./routes/attendance");
 var departmentRouter = require("./routes/department");
 const { connect } = require("http2");
@@ -30,7 +29,6 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 
 app.use("/auth", authRouter);
-app.use("/hr", hrRouter);
 app.use("/role", roleRouter);
 app.use("/departments", departmentRouter);
 // Connect to MongoDB
@@ -51,7 +49,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.sendFile(path.join(__dirname, 'views', 'error.html'));
+  res.sendFile(path.join(__dirname, "views", "error.html"));
 });
 
 module.exports = app;
