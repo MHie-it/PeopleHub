@@ -5,7 +5,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 let dotenv = require("dotenv");
 
-<<<<<<< HEAD
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
@@ -13,16 +12,6 @@ var roleRouter = require("./routes/role");
 var attendanceRouter = require("./routes/attendance");
 var departmentRouter = require("./routes/department");
 const { connect } = require("http2");
-=======
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authRouter = require('./routes/auth');
-var roleRouter = require('./routes/role');
-var positionRouter = require("./routes/positions");
-var attendanceRouter = require('./routes/attendance');
-var employeesRouter = require('./routes/employees');
-const { connect } = require('http2');
->>>>>>> e951a9ff31613e02e409dbabecf8e7993524e78e
 
 var app = express();
 app.use("/attendance", attendanceRouter);
@@ -36,24 +25,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-<<<<<<< HEAD
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 
 app.use("/auth", authRouter);
 app.use("/role", roleRouter);
 app.use("/departments", departmentRouter);
-=======
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-app.use('/auth', authRouter);
-app.use('/role', roleRouter);
-app.use('/employees', employeesRouter);
-
-app.use("/positions", positionRouter);
-
->>>>>>> e951a9ff31613e02e409dbabecf8e7993524e78e
 // Connect to MongoDB
 dotenv.config();
 let connectDB = require("./config/db");
