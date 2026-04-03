@@ -16,11 +16,12 @@ function loadEnv() {
 }
 
 // Workaround for local DNS resolution issues with MongoDB Atlas SRV records
+const dns = require('dns')
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 const connectDB = async () => {
     loadEnv();
 
-    const uri = process.e~nv.MONGOOSEDB_CONNECTION;
+    const uri = process.env.MONGOOSEDB_CONNECTION;
     if (!uri) {
         console.error(
             'Missing `MONGOOSEDB_CONNECTION` in env file. Expected `.env` (or `.evn`) at project root.'
