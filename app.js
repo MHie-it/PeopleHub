@@ -9,7 +9,6 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
 var roleRouter = require('./routes/role');
-var hrRouter = require('./routes/hr');
 var positionRouter = require("./routes/positions");
 var attendanceRouter = require('./routes/attendance');
 var employeesRouter = require('./routes/employees');
@@ -31,7 +30,6 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 app.use('/auth', authRouter);
-app.use('/hr', hrRouter);
 app.use('/role', roleRouter);
 app.use('/employees', employeesRouter);
 
