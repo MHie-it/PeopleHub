@@ -11,6 +11,8 @@ var authRouter = require("./routes/auth");
 var roleRouter = require("./routes/role");
 var attendanceRouter = require("./routes/attendance");
 var departmentRouter = require("./routes/department");
+var employeesRouter = require("./routes/employees");
+var positionRouter = require("./routes/positions");
 const { connect } = require("http2");
 
 var app = express();
@@ -31,6 +33,8 @@ app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/role", roleRouter);
 app.use("/departments", departmentRouter);
+app.use("/employees", employeesRouter);
+app.use("/positions", positionRouter);
 // Connect to MongoDB
 dotenv.config();
 let connectDB = require("./config/db");

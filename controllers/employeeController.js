@@ -78,18 +78,27 @@ module.exports.createEmployee = async (req, res) => {
             department, position, manager, joinDate
         } = req.body;
 
-        if (!username || !password || !email || !roleId || !employeeCode || !fullName || !department || !position || !joinDate) {
+        if (!username || !password || !email || !employeeCode || !fullName || !department || !position || !joinDate) {
             return res.status(400).json({ success: false, message: "Vui lòng cung cấp đầy đủ thông tin bắt buộc" });
         }
 
-        if (!mongoose.Types.ObjectId.isValid(roleId) ||
+        let finalRoleId = roleId;
+        if (!finalRoleId) {
+            const employeeRole = await Role.findOne({ name: 'Employee' });
+            if (!employeeRole) {
+                return res.status(500).json({ success: false, message: "Không tìm thấy quyền 'Employee' mặc định trong CSDL" });
+            }
+            finalRoleId = employeeRole._id;
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(finalRoleId) ||
             !mongoose.Types.ObjectId.isValid(department) ||
             !mongoose.Types.ObjectId.isValid(position) ||
             (manager && !mongoose.Types.ObjectId.isValid(manager))) {
             return res.status(400).json({ success: false, message: "ID tham chiếu không hợp lệ (role, department, position hoặc manager)" });
         }
 
-        const roleExists = await Role.findById(roleId);
+        const roleExists = await Role.findById(finalRoleId);
         if (!roleExists) {
             return res.status(404).json({ success: false, message: "Quyền (Role) không tồn tại" });
         }
@@ -114,7 +123,7 @@ module.exports.createEmployee = async (req, res) => {
                     password,
                     email,
                     fullName,
-                    role: roleId
+                    role: finalRoleId
                 });
                 await newUser.save({ session });
 
