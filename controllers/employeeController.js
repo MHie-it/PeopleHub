@@ -3,15 +3,10 @@ const Role = require('../schemas/roles');
 const Employee = require('../schemas/employees');
 const mongoose = require('mongoose');
 
-// ==========================================
-// CHO EMPLOYEE TỰ XEM THÔNG TIN CỦA MÌNH
-// ==========================================
 module.exports.getMyProfile = async (req, res) => {
     try {
-        // req.user được gán từ middleware CheckLogin
         const currentUserId = req.user[0]._id;
-        
-        // Tìm hồ sơ Employee liên kết với User ID
+
         const employeeProfile = await Employee.findOne({ user: currentUserId, isDeleted: false })
             .populate('user', '-password')
             .populate('department', 'name code')
@@ -30,9 +25,6 @@ module.exports.getMyProfile = async (req, res) => {
     }
 };
 
-// ==========================================
-// DÀNH CHO HR / ADMIN
-// ==========================================
 
 module.exports.getAllEmployees = async (req, res) => {
     try {
@@ -74,22 +66,17 @@ module.exports.getEmployeeById = async (req, res) => {
 };
 
 module.exports.createEmployee = async (req, res) => {
-    // Để giữ tính nhất quán, dùng Session/Transaction nếu có ReplicaSet. 
-    // Ở đây đơn giản tạo lần lượt.
     try {
-        const { 
-            // Của User
-            username, password, email, roleId, 
-            // Của Employee
-            employeeCode, fullName, dateOfBirth, gender, phone, address, 
-            department, position, manager, joinDate 
+        const {
+            username, password, email, roleId,
+            employeeCode, fullName, dateOfBirth, gender, phone, address,
+            department, position, manager, joinDate
         } = req.body;
 
         if (!username || !password || !email || !roleId || !employeeCode || !fullName || !department || !position || !joinDate) {
             return res.status(400).json({ success: false, message: "Vui lòng cung cấp đầy đủ thông tin bắt buộc" });
         }
 
-        // 1. Kiểm tra tồn tại Role, User, Mã NV
         const roleExists = await Role.findById(roleId);
         if (!roleExists) {
             return res.status(404).json({ success: false, message: "Quyền (Role) không tồn tại" });
@@ -105,7 +92,7 @@ module.exports.createEmployee = async (req, res) => {
             return res.status(400).json({ success: false, message: "Mã nhân viên (Employee Code) đã tồn tại" });
         }
 
-        // 2. Tạo Tài khoản User tương tự code của hrController
+
         const newUser = new User({
             username,
             password,
@@ -115,7 +102,6 @@ module.exports.createEmployee = async (req, res) => {
         });
         await newUser.save();
 
-        // 3. Tạo Hồ sơ Nhân sự (Employee) kết nối với User ID vừa lưu
         const newEmployee = new Employee({
             employeeCode,
             user: newUser._id,
@@ -149,13 +135,12 @@ module.exports.updateEmployee = async (req, res) => {
         const { id } = req.params;
         const updateData = req.body;
 
-        // Xóa trường không cho phép tự sửa qua đường này
         delete updateData.user;
         delete updateData.employeeCode;
         delete updateData.isDeleted;
 
         const updatedEmployee = await Employee.findByIdAndUpdate(id, updateData, { new: true });
-        
+
         if (!updatedEmployee) {
             return res.status(404).json({ success: false, message: "Không tìm thấy nhân viên" });
         }
@@ -174,13 +159,12 @@ module.exports.deleteEmployee = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Soft Delete: Đánh dấu nghỉ việc thay vì xóa thật khỏi DB
         const deletedEmployee = await Employee.findByIdAndUpdate(
-            id, 
-            { 
-                isDeleted: true, 
-                employmentStatus: "RESIGNED" 
-            }, 
+            id,
+            {
+                isDeleted: true,
+                employmentStatus: "RESIGNED"
+            },
             { new: true }
         );
 
