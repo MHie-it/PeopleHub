@@ -8,9 +8,13 @@ import { DepartmentsPage } from "./pages/DepartmentsPage";
 import { EmployeeDetailPage } from "./pages/EmployeeDetailPage";
 import { EmployeeFormPage } from "./pages/EmployeeFormPage";
 import { EmployeeListPage } from "./pages/EmployeeListPage";
+import { LeavesPage } from "./pages/LeavesPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { NotificationsPage } from "./pages/NotificationsPage";
+import { PayrollPage } from "./pages/PayrollPage";
 import { PositionsPage } from "./pages/PositionsPage";
 import { RolesPage } from "./pages/RolesPage";
+import { SalaryPage } from "./pages/SalaryPage";
 import { ChangePasswordPage } from "./pages/auth/ChangePasswordPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
@@ -69,12 +73,12 @@ function App() {
         <Route path="positions" element={<PositionsPage />} />
         <Route path="roles" element={<RolesPage />} />
         <Route path="attendance" element={<AttendancePage />} />
+        <Route path="leave" element={<LeavesPage />} />
+        <Route path="payroll" element={<PayrollPage />} />
+        <Route path="salary" element={<SalaryPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
 
         <Route path="contracts" element={<ApiUnavailablePage />} />
-        <Route path="leave" element={<ApiUnavailablePage />} />
-        <Route path="payroll" element={<ApiUnavailablePage />} />
-        <Route path="salary" element={<ApiUnavailablePage />} />
-        <Route path="notifications" element={<ApiUnavailablePage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

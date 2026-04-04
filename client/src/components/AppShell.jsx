@@ -7,29 +7,31 @@ const primaryNavItems = [
   {
     to: "/employees",
     label: "Employees",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.HR, APP_ROLES.MANAGER],
+    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.HR, APP_ROLES.MANAGER],
   },
   {
     to: "/departments",
     label: "Departments",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.MANAGER],
+    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.MANAGER],
   },
   { to: "/positions", label: "Positions" },
   { to: "/roles", label: "Roles" },
   {
     to: "/attendance",
     label: "Attendance",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.MANAGER, APP_ROLES.EMPLOYEE],
+    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.MANAGER, APP_ROLES.EMPLOYEE],
   },
-];
-
-const unavailableItems = [
-  { to: "/contracts", label: "Contracts" },
   { to: "/leave", label: "Leave" },
-  { to: "/payroll", label: "Payroll" },
+  {
+    to: "/payroll",
+    label: "Payroll",
+    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.HR, APP_ROLES.DIRECTOR, APP_ROLES.BOSS],
+  },
   { to: "/salary", label: "Salary" },
   { to: "/notifications", label: "Notifications" },
 ];
+
+const unavailableItems = [{ to: "/contracts", label: "Contracts" }];
 
 function canDisplayItem(user, item) {
   if (!item.roles) {
