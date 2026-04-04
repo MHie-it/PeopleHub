@@ -5,7 +5,7 @@ const { CheckLogin, CheckRole } = require('../utils/authHandler');
 
 const roles = require('../schemas/roles');
 
-router.post('/create', CheckLogin ,CheckRole(['Manager', 'Admin']), departmentController.createDepartment);
-router.get('/list', CheckLogin , CheckRole(['Manager', 'Admin']), departmentController.getDepartment);
+router.post('/create', CheckLogin ,CheckRole(['Manager', 'admin']), departmentController.createDepartment);
+router.get('/list', CheckLogin , CheckRole(['Manager', 'admin']), departmentController.getDepartment);
 
 module.exports = router;

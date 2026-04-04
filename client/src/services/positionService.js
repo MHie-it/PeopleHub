@@ -1,0 +1,11 @@
+import apiClient from "../lib/apiClient";
+
+export async function getPositions() {
+  const response = await apiClient.get("/positions");
+  return response.data;
+}
+
+export async function createPosition(payload) {
+  const response = await apiClient.post("/positions", payload);
+  return response.data;
+}
