@@ -17,7 +17,7 @@ var notifiRouter = require("./routes/notifi");
 var payrollsRouter = require("./routes/payrolls");
 var leavesRouter = require("./routes/leaves");
 var salaryRouter = require("./routes/salary");
-const { connect } = require("http2");
+var uploadRouter = require("./routes/upload");
 
 var app = express();
 app.use("/attendance", attendanceRouter);
@@ -43,6 +43,7 @@ app.use("/notifi", notifiRouter);
 app.use("/payrolls", payrollsRouter);
 app.use("/leaves", leavesRouter);
 app.use("/salary", salaryRouter);
+app.use("/upload", uploadRouter);
 // Connect to MongoDB
 dotenv.config();
 let connectDB = require("./config/db");
