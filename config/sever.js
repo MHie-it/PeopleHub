@@ -3,7 +3,6 @@ const connectDB = require('./db');
 
 const app = express();
 
-// Connect to the database
 connectDB();
 
 app.listen(3000, () => {

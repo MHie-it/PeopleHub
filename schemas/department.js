@@ -7,33 +7,33 @@ const departmentSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
-      uppercase: true
+      uppercase: true,
     },
 
     name: {
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
     },
 
     description: {
       type: String,
-      default: ""
+      default: "",
     },
 
     manager: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "employees",
-      default: null
+      default: null,
     },
 
     isDeleted: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("departments", departmentSchema);

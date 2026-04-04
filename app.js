@@ -1,41 +1,51 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-let dotenv = require('dotenv');
+var createError = require("http-errors");
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
+let dotenv = require("dotenv");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authRouter = require('./routes/auth');
-var employeeRouter = require('./routes/employee');
-var roleRouter = require('./routes/role');
-var hrRouter = require('./routes/hr');
-const { connect } = require('http2');
+var indexRouter = require("./routes/index");
+var usersRouter = require("./routes/users");
+var authRouter = require("./routes/auth");
+var roleRouter = require("./routes/role");
+var attendanceRouter = require("./routes/attendance");
+var departmentRouter = require("./routes/department");
+var employeesRouter = require("./routes/employees");
+var positionRouter = require("./routes/positions");
+var notifiRouter = require("./routes/notifi");
+var payrollsRouter = require("./routes/payrolls");
+var leavesRouter = require("./routes/leaves");
+var salaryRouter = require("./routes/salary");
+const { connect } = require("http2");
 
 var app = express();
-app.use('/attendance', attendanceRouter);
+app.use("/attendance", attendanceRouter);
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
 
-app.use('/auth', authRouter);
-app.use('/employee', employeeRouter);
-app.use('/hr', hrRouter);
-app.use('/role', roleRouter);
-
+app.use("/auth", authRouter);
+app.use("/role", roleRouter);
+app.use("/departments", departmentRouter);
+app.use("/employees", employeesRouter);
+app.use("/positions", positionRouter);
+app.use("/notifi", notifiRouter);
+app.use("/payrolls", payrollsRouter);
+app.use("/leaves", leavesRouter);
+app.use("/salary", salaryRouter);
 // Connect to MongoDB
 dotenv.config();
-let connectDB = require('./config/db');
+let connectDB = require("./config/db");
 connectDB();
 
 // catch 404 and forward to error handler
@@ -47,11 +57,11 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.sendFile(path.join(__dirname, "views", "error.html"));
 });
 
 module.exports = app;
