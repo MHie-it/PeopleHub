@@ -16,6 +16,7 @@ router.post('/login', async function (req, res, next) {
     }
 
 })
+
 router.post('/register', RegisterValidator, validatedResult, async function (req, res, next) {
     let { username, password, email } = req.body;
     let employeeRole = await roleModel.findOne({ name: 'Employee' });
@@ -27,14 +28,17 @@ router.post('/register', RegisterValidator, validatedResult, async function (req
     )
     res.send(newUser)
 })
+
 router.get('/me', CheckLogin, function (req, res, next) {
     res.send(req.user)
 })
+
 router.post('/forgot-password', ForgotPasswordValidator, validatedResult, async function (req, res, next) {
     let { email } = req.body;
     let result = await userController.ForgotPassword(email);
     res.send(result)
 })
+
 router.post('/change-password', ResetPasswordValidator, validatedResult, async function (req, res, next) {
     let { email, password } = req.body;
     let result = await userController.ChangePassword(email, password);
