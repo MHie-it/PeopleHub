@@ -5,10 +5,10 @@ let { uploadImage, uploadExcel } = require("../utils/uploadHandler");
 let { CheckLogin } = require("../utils/authHandler");
 
 router.post(
-    "/avatar",
-    CheckLogin,
-    uploadImage.single("file"),
-    upload.UploadUserAvatar
+  "/avatar",
+  CheckLogin,
+  uploadImage.single("file"),
+  upload.UploadUserAvatar
 );
 
 router.post("/excel", uploadExcel.single("file"), upload.UploadExcel);
