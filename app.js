@@ -3,6 +3,7 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var cors = require("cors");
 let dotenv = require("dotenv");
 
 var indexRouter = require("./routes/index");
@@ -16,12 +17,18 @@ var positionRouter = require("./routes/positions");
 const { connect } = require("http2");
 
 var app = express();
-app.use("/attendance", attendanceRouter);
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use(logger("dev"));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -35,6 +42,7 @@ app.use("/role", roleRouter);
 app.use("/departments", departmentRouter);
 app.use("/employees", employeesRouter);
 app.use("/positions", positionRouter);
+app.use("/attendance", attendanceRouter);
 // Connect to MongoDB
 dotenv.config();
 let connectDB = require("./config/db");
