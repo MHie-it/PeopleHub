@@ -14,6 +14,10 @@ var attendanceRouter = require("./routes/attendance");
 var departmentRouter = require("./routes/department");
 var employeesRouter = require("./routes/employees");
 var positionRouter = require("./routes/positions");
+var notifiRouter = require("./routes/notifi");
+var payrollsRouter = require("./routes/payrolls");
+var leavesRouter = require("./routes/leaves");
+var salaryRouter = require("./routes/salary");
 const { connect } = require("http2");
 
 var app = express();
@@ -43,6 +47,10 @@ app.use("/departments", departmentRouter);
 app.use("/employees", employeesRouter);
 app.use("/positions", positionRouter);
 app.use("/attendance", attendanceRouter);
+app.use("/notifi", notifiRouter);
+app.use("/payrolls", payrollsRouter);
+app.use("/leaves", leavesRouter);
+app.use("/salary", salaryRouter);
 // Connect to MongoDB
 dotenv.config();
 let connectDB = require("./config/db");
