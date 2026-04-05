@@ -8,6 +8,7 @@ import {
   canAccessNotifications,
   canAccessPayroll,
   canAccessPositions,
+  canAccessUsers,
   canCreateOrDeleteEmployee,
   canEditEmployeeRecord,
   canUseAttendance,
@@ -28,6 +29,7 @@ import { PositionsPage } from "./pages/PositionsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RolesPage } from "./pages/RolesPage";
 import { SalaryPage } from "./pages/SalaryPage";
+import { UsersPage } from "./pages/UsersPage";
 import { ChangePasswordPage } from "./pages/auth/ChangePasswordPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
@@ -165,6 +167,14 @@ function App() {
           element={
             <RequirePermission check={canAccessContracts}>
               <ContractsPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <RequirePermission check={canAccessUsers}>
+              <UsersPage />
             </RequirePermission>
           }
         />

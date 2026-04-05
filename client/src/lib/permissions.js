@@ -64,6 +64,11 @@ export function canAccessContracts(user) {
   return Boolean(user);
 }
 
+/** User accounts admin UI + /users API: admin, Manager, Boss */
+export function canAccessUsers(user) {
+  return hasRole(user, [...ADMIN_LIKE, APP_ROLES.MANAGER, APP_ROLES.BOSS]);
+}
+
 export function canUseAttendance(user) {
   return hasRole(user, [
     APP_ROLES.ADMIN,
@@ -95,6 +100,7 @@ const routeChecks = {
   "/salary": () => true,
   "/notifications": canAccessNotifications,
   "/contracts": canAccessContracts,
+  "/users": canAccessUsers,
   "/profile": () => true,
 };
 

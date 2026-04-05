@@ -1,7 +1,4 @@
-const mongoose = require("mongoose");
 const Department = require("../schemas/department");
-const Employee = require("../schemas/employees");
-const { create } = require("../schemas/users");
 
 async function createDepartment(req, res, next) {
   try {

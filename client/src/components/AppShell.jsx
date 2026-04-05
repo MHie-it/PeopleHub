@@ -7,6 +7,7 @@ import {
   canAccessNotifications,
   canAccessPayroll,
   canAccessPositions,
+  canAccessUsers,
   canUseAttendance,
   canViewRoles,
 } from "../lib/permissions";
@@ -15,6 +16,7 @@ const primaryNavItems = [
   { to: "/employees", label: "Employees", check: canAccessEmployees },
   { to: "/departments", label: "Departments", check: canAccessDepartments },
   { to: "/positions", label: "Positions", check: canAccessPositions },
+  { to: "/users", label: "Users", check: canAccessUsers },
   { to: "/roles", label: "Roles", check: canViewRoles },
   { to: "/attendance", label: "Attendance", check: canUseAttendance },
   { to: "/leave", label: "Leave" },

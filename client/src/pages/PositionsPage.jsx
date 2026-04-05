@@ -5,7 +5,12 @@ import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { canWritePositions } from "../lib/permissions";
 import { getDepartments } from "../services/departmentService";
-import { createPosition, getPositions } from "../services/positionService";
+import {
+  createPosition,
+  deletePosition,
+  getPositions,
+  updatePosition,
+} from "../services/positionService";
 
 function deriveDepartmentsFromPositions(positions) {
   const map = new Map();
@@ -40,6 +45,14 @@ export function PositionsPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState("");
+  const [editForm, setEditForm] = useState({
+    code: "",
+    title: "",
+    department: "",
+    level: "Junior",
+    description: "",
+  });
 
   async function loadPositions() {
     setLoading(true);
@@ -76,6 +89,31 @@ export function PositionsPage() {
     setForm((previous) => ({ ...previous, [name]: value }));
   }
 
+  function handleEditChange(event) {
+    const { name, value } = event.target;
+    setEditForm((previous) => ({ ...previous, [name]: value }));
+  }
+
+  function startEdit(row) {
+    const deptId =
+      typeof row.department === "object" && row.department?._id
+        ? row.department._id
+        : row.department || "";
+    setEditingId(row._id);
+    setEditForm({
+      code: row.code || "",
+      title: row.title || "",
+      department: String(deptId),
+      level: row.level || "Junior",
+      description: row.description || "",
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId("");
+    setEditForm({ code: "", title: "", department: "", level: "Junior", description: "" });
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setSubmitting(true);
@@ -92,9 +130,82 @@ export function PositionsPage() {
     }
   }
 
+  async function handleEditSubmit(event, id) {
+    event.preventDefault();
+    setError("");
+
+    try {
+      await updatePosition(id, {
+        code: editForm.code,
+        title: editForm.title,
+        department: editForm.department,
+        level: editForm.level,
+        description: editForm.description,
+      });
+      cancelEdit();
+      await loadPositions();
+    } catch (submitError) {
+      setError(extractErrorMessage(submitError, "Unable to update position"));
+    }
+  }
+
+  async function handleDelete(id) {
+    const confirmed = window.confirm("Xóa chức vụ này? (soft delete)");
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+
+    try {
+      await deletePosition(id);
+      cancelEdit();
+      await loadPositions();
+    } catch (deleteError) {
+      setError(extractErrorMessage(deleteError, "Unable to delete position"));
+    }
+  }
+
+  function departmentField(name, value, onChange, required) {
+    if (departments.length > 0) {
+      return (
+        <select name={name} value={value} onChange={onChange} required={required}>
+          <option value="">Select department</option>
+          {departments.map((department) => (
+            <option key={department._id} value={department._id}>
+              {department.name}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    return (
+      <input
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder="Department ObjectId"
+        required={required}
+      />
+    );
+  }
+
+  const levelSelect = (value, onChange) => (
+    <select name="level" value={value} onChange={onChange}>
+      <option value="Intern">Intern</option>
+      <option value="Junior">Junior</option>
+      <option value="Middle">Middle</option>
+      <option value="Senior">Senior</option>
+      <option value="Lead">Lead</option>
+      <option value="Manager">Manager</option>
+      <option value="Director">Director</option>
+    </select>
+  );
+
   return (
     <section className="page-card">
-      <PageHeader title="Positions" subtitle="Data source: /positions" />
+      <PageHeader title="Positions" subtitle="GET/POST/PUT/DELETE /positions" />
 
       {canWrite ? (
         <form className="form-grid" onSubmit={handleSubmit}>
@@ -110,37 +221,12 @@ export function PositionsPage() {
 
           <label>
             Department
-            {departments.length > 0 ? (
-              <select name="department" value={form.department} onChange={handleChange} required>
-                <option value="">Select department</option>
-                {departments.map((department) => (
-                  <option key={department._id} value={department._id}>
-                    {department.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                name="department"
-                value={form.department}
-                onChange={handleChange}
-                placeholder="Department ObjectId"
-                required
-              />
-            )}
+            {departmentField("department", form.department, handleChange, true)}
           </label>
 
           <label>
             Level
-            <select name="level" value={form.level} onChange={handleChange}>
-              <option value="Intern">Intern</option>
-              <option value="Junior">Junior</option>
-              <option value="Middle">Middle</option>
-              <option value="Senior">Senior</option>
-              <option value="Lead">Lead</option>
-              <option value="Manager">Manager</option>
-              <option value="Director">Director</option>
-            </select>
+            {levelSelect(form.level, handleChange)}
           </label>
 
           <label className="full-width">
@@ -156,9 +242,11 @@ export function PositionsPage() {
         </form>
       ) : null}
 
+      {error ? <p className="status-note error">{error}</p> : null}
+
       <DataState
         loading={loading}
-        error={error}
+        error={error && !positions.length ? error : ""}
         empty={!loading && !error && positions.length === 0}
         emptyMessage="No positions returned by backend."
       >
@@ -171,16 +259,74 @@ export function PositionsPage() {
                 <th>Department</th>
                 <th>Level</th>
                 <th>Description</th>
+                {canWrite ? <th>Actions</th> : null}
               </tr>
             </thead>
             <tbody>
               {positions.map((position) => (
                 <tr key={position._id}>
-                  <td>{position.code}</td>
-                  <td>{position.title}</td>
-                  <td>{position.department?.name || "-"}</td>
-                  <td>{position.level || "-"}</td>
-                  <td>{position.description || "-"}</td>
+                  <td>
+                    {editingId === position._id ? (
+                      <input name="code" value={editForm.code} onChange={handleEditChange} required />
+                    ) : (
+                      position.code
+                    )}
+                  </td>
+                  <td>
+                    {editingId === position._id ? (
+                      <input name="title" value={editForm.title} onChange={handleEditChange} required />
+                    ) : (
+                      position.title
+                    )}
+                  </td>
+                  <td>
+                    {editingId === position._id ? (
+                      departmentField("department", editForm.department, handleEditChange, true)
+                    ) : (
+                      position.department?.name || "-"
+                    )}
+                  </td>
+                  <td>
+                    {editingId === position._id ? (
+                      levelSelect(editForm.level, handleEditChange)
+                    ) : (
+                      position.level || "-"
+                    )}
+                  </td>
+                  <td>
+                    {editingId === position._id ? (
+                      <input
+                        name="description"
+                        value={editForm.description}
+                        onChange={handleEditChange}
+                      />
+                    ) : (
+                      position.description || "-"
+                    )}
+                  </td>
+                  {canWrite ? (
+                    <td className="actions-inline">
+                      {editingId === position._id ? (
+                        <>
+                          <button type="button" onClick={(event) => handleEditSubmit(event, position._id)}>
+                            Save
+                          </button>
+                          <button type="button" className="ghost-button" onClick={cancelEdit}>
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" onClick={() => startEdit(position)}>
+                            Edit
+                          </button>
+                          <button type="button" className="link-danger" onClick={() => handleDelete(position._id)}>
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

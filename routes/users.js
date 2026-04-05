@@ -1,9 +1,13 @@
-var express = require('express');
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
+const { CheckLogin, CheckRole } = require("../utils/authHandler");
+const userAdminController = require("../controllers/userAdminController");
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+const userMgmtRoles = ["admin", "Admin", "Manager", "Boss"];
+
+router.get("/", CheckLogin, CheckRole(userMgmtRoles), userAdminController.listUsers);
+router.get("/:id", CheckLogin, CheckRole(userMgmtRoles), userAdminController.getUserById);
+router.put("/:id", CheckLogin, CheckRole(userMgmtRoles), userAdminController.updateUser);
+router.delete("/:id", CheckLogin, CheckRole(userMgmtRoles), userAdminController.softDeleteUser);
 
 module.exports = router;

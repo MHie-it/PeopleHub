@@ -1,7 +1,11 @@
+const mongoose = require("mongoose");
 const Position = require("../schemas/positions");
 const Department = require("../schemas/department");
 const Employee = require("../schemas/employees");
 
+function isCastError(error) {
+  return error?.name === "CastError" || error instanceof mongoose.Error.CastError;
+}
 
 async function getPositions(req, res) {
     try {
