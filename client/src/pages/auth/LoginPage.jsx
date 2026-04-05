@@ -37,10 +37,10 @@ export function LoginPage() {
       subtitle="Connect to your real PeopleHub backend instance."
       error={error}
       links={[
-        { to: "/register", label: "Create account" },
-        { to: "/forgot-password", label: "Forgot password" },
-      ]}
-    >
+      { to: "/register", label: "Create account" },
+      { to: "/forgot-password", label: "Forgot password" }]
+      }>
+      
       <form className="form-stack" onSubmit={handleSubmit}>
         <label>
           Username or Email
@@ -49,8 +49,8 @@ export function LoginPage() {
             value={form.username}
             onChange={handleChange}
             placeholder="admin or admin@example.com"
-            required
-          />
+            required />
+          
         </label>
 
         <label>
@@ -60,8 +60,8 @@ export function LoginPage() {
             name="password"
             value={form.password}
             onChange={handleChange}
-            required
-          />
+            required />
+          
         </label>
 
         <button type="submit" disabled={loading}>
@@ -72,6 +72,6 @@ export function LoginPage() {
           Need password reset after login? Use <Link to="/change-password">change password</Link>.
         </p>
       </form>
-    </AuthCard>
-  );
+    </AuthCard>);
+
 }

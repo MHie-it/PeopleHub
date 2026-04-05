@@ -14,3 +14,9 @@ export async function markNotificationRead(id) {
   const response = await apiClient.put(`/notifi/${id}/read`);
   return response.data;
 }
+
+export async function createGlobalNotification(payload) {
+  const response = await apiClient.post("/notifi/send-all", payload);
+  return response.data;
+}
+

@@ -12,7 +12,7 @@ function formatMoney(value) {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(Number(value));
 }
 
@@ -22,7 +22,7 @@ const TYPE_LABELS = {
   INDEFINITE: "Không thời hạn",
   PROBATION: "Thử việc",
   PART_TIME: "Bán thời gian",
-  FULL_TIME: "Toàn thời gian",
+  FULL_TIME: "Toàn thời gian"
 };
 
 function formatContractType(type) {
@@ -54,11 +54,11 @@ function ContractDocumentIcon() {
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+        strokeLinejoin="round" />
+      
       <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
+    </svg>);
+
 }
 
 export function ContractsPage() {
@@ -114,8 +114,8 @@ export function ContractsPage() {
         <div className="contracts-page-intro-text">
           <PageHeader
             title="Hợp đồng của tôi"
-            subtitle="Danh sách hợp đồng lao động gắn với hồ sơ nhân viên hiện tại."
-          />
+            subtitle="Danh sách hợp đồng lao động gắn với hồ sơ nhân viên hiện tại." />
+          
           {countLabel ? <p className="contracts-count-pill">{countLabel}</p> : null}
         </div>
       </div>
@@ -124,11 +124,11 @@ export function ContractsPage() {
         loading={loading}
         error={error}
         empty={!loading && !error && contracts.length === 0}
-        emptyMessage="Chưa có hợp đồng nào cho tài khoản của bạn."
-      >
+        emptyMessage="Chưa có hợp đồng nào cho tài khoản của bạn.">
+        
         <div className="contract-cards">
-          {contracts.map((contract) => (
-            <article className="contract-card" key={contract._id}>
+          {contracts.map((contract) =>
+          <article className="contract-card" key={contract._id}>
               <header className="contract-card__head">
                 <div className="contract-card__titles">
                   <p className="contract-card__label">Số hợp đồng</p>
@@ -157,16 +157,16 @@ export function ContractsPage() {
                 </div>
               </div>
 
-              {contract.notes ? (
-                <footer className="contract-card__notes">
+              {contract.notes ?
+            <footer className="contract-card__notes">
                   <span className="contract-card__notes-label">Ghi chú</span>
                   <p>{contract.notes}</p>
-                </footer>
-              ) : null}
+                </footer> :
+            null}
             </article>
-          ))}
+          )}
         </div>
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

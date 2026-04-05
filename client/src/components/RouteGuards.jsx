@@ -8,18 +8,18 @@ export function RequirePermission({ check, children }) {
     return (
       <CenterMessage
         title="Preparing your workspace"
-        description="We are validating your session token with the backend."
-      />
-    );
+        description="We are validating your session token with the backend." />);
+
+
   }
 
   if (!check(user)) {
     return (
       <CenterMessage
         title="Access denied"
-        description="Your role does not have permission to open this page. Use the sidebar to navigate elsewhere."
-      />
-    );
+        description="Your role does not have permission to open this page. Use the sidebar to navigate elsewhere." />);
+
+
   }
 
   return children;
@@ -30,8 +30,8 @@ function CenterMessage({ title, description }) {
     <div className="center-message">
       <h2>{title}</h2>
       <p>{description}</p>
-    </div>
-  );
+    </div>);
+
 }
 
 export function RequireAuth({ children }) {
@@ -41,9 +41,9 @@ export function RequireAuth({ children }) {
     return (
       <CenterMessage
         title="Preparing your workspace"
-        description="We are validating your session token with the backend."
-      />
-    );
+        description="We are validating your session token with the backend." />);
+
+
   }
 
   if (!token) {
@@ -60,9 +60,9 @@ export function PublicOnly({ children }) {
     return (
       <CenterMessage
         title="Loading"
-        description="Just a second while we verify your identity."
-      />
-    );
+        description="Just a second while we verify your identity." />);
+
+
   }
 
   if (token) {

@@ -6,6 +6,6 @@ export function PageHeader({ title, subtitle, actions = null }) {
         {subtitle ? <p>{subtitle}</p> : null}
       </div>
       {actions ? <div className="page-header-actions">{actions}</div> : null}
-    </div>
-  );
+    </div>);
+
 }

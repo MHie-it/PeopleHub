@@ -50,25 +50,25 @@ export function EmployeeDetailPage() {
         title="Employee detail"
         subtitle="Data source: GET /employees/:id"
         actions={
-          <div className="actions-inline">
+        <div className="actions-inline">
             <Link to="/employees">Back</Link>
-            {canEditEmployeeRecord(user) ? (
-              <Link className="button-like" to={`/employees/${id}/edit`}>
+            {canEditEmployeeRecord(user) ?
+          <Link className="button-like" to={`/employees/${id}/edit`}>
                 Edit
-              </Link>
-            ) : null}
+              </Link> :
+          null}
           </div>
-        }
-      />
+        } />
+      
 
       <DataState
         loading={loading}
         error={error}
         empty={!loading && !error && !employee}
-        emptyMessage="Employee record not found."
-      >
-        {employee ? (
-          <div className="kv-grid">
+        emptyMessage="Employee record not found.">
+        
+        {employee ?
+        <div className="kv-grid">
             <p>
               <span>Employee code</span>
               <strong>{employee.employeeCode}</strong>
@@ -109,9 +109,9 @@ export function EmployeeDetailPage() {
               <span>Updated</span>
               <strong>{formatDateTime(employee.updatedAt)}</strong>
             </p>
-          </div>
-        ) : null}
+          </div> :
+        null}
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

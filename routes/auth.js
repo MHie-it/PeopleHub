@@ -5,7 +5,7 @@ let roleModel = require('../schemas/roles')
 let { RegisterValidator, validatedResult, ForgotPasswordValidator, ResetPasswordValidator } = require('../utils/validator')
 let { CheckLogin, CheckRole } = require('../utils/authHandler')
 
-//login
+
 router.post('/login', async function (req, res, next) {
     let { username, password } = req.body;
     let result = await userController.QueryLogin(username, password);

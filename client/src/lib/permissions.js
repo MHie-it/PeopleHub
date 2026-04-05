@@ -1,21 +1,21 @@
 import { APP_ROLES, getRoleName, hasRole } from "./roles";
 
-/** admin + legacy "Admin" */
+
 export const ADMIN_LIKE = [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER];
 
 export const HR_BOSS_DIRECTOR = [APP_ROLES.HR, APP_ROLES.BOSS, APP_ROLES.DIRECTOR];
 
-/** Create/delete employees, payroll, full HR tooling */
+
 export const FULL_MGMT_ROLES = [...ADMIN_LIKE, ...HR_BOSS_DIRECTOR, APP_ROLES.MANAGER];
 
-/** List/view employees including department-scoped leader */
+
 export const EMPLOYEE_DIRECTORY_ROLES = [...FULL_MGMT_ROLES, APP_ROLES.LEADER];
 
 export function isAdmin(user) {
   return hasRole(user, ADMIN_LIKE);
 }
 
-/** Only system admin may create/update/delete roles (Boss/HR read-only on UI). */
+
 export function canMutateRoles(user) {
   return isAdmin(user);
 }
@@ -57,7 +57,7 @@ export function canAccessPayroll(user) {
 }
 
 export function canAccessNotifications(user) {
-  return !hasRole(user, [APP_ROLES.EMPLOYEE]);
+  return true;
 }
 
 export function canAccessContracts(user) {
@@ -82,7 +82,7 @@ export function canUseAttendance(user) {
   ]);
 }
 
-/** Non–self-service attendance: pick an employee (user id) for check-in/out. */
+
 export function attendanceNeedsEmployeePicker(user) {
   return getRoleName(user) !== APP_ROLES.EMPLOYEE;
 }

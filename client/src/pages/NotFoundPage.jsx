@@ -6,6 +6,6 @@ export function NotFoundPage() {
       <h2>Page not found</h2>
       <p>The route you entered does not exist in this frontend.</p>
       <Link to="/">Go back to dashboard</Link>
-    </div>
-  );
+    </div>);
+
 }

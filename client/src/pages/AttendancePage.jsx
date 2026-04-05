@@ -64,12 +64,12 @@ export function AttendancePage() {
   }, [needsEmployeePick, selectedEmployee]);
 
   const options = useMemo(() => {
-    return employees
-      .map((employee) => ({
-        id: employee.user?._id,
-        label: `${employee.fullName} (${employee.employeeCode})`,
-      }))
-      .filter((option) => option.id);
+    return employees.
+    map((employee) => ({
+      id: employee.user?._id,
+      label: `${employee.fullName} (${employee.employeeCode})`
+    })).
+    filter((option) => option.id);
   }, [employees]);
 
   async function runAction(actionType) {
@@ -104,8 +104,8 @@ export function AttendancePage() {
       <section className="page-card">
         <PageHeader title="Attendance" subtitle="Data source: /attendance/check-in and /attendance/check-out" />
         <p className="status-note error">Your role does not have access to attendance actions.</p>
-      </section>
-    );
+      </section>);
+
   }
 
   return (
@@ -114,20 +114,20 @@ export function AttendancePage() {
 
       <DataState loading={loadingEmployees} error={error} empty={false}>
         <div className="form-grid">
-          {needsEmployeePick ? (
-            <label>
+          {needsEmployeePick ?
+          <label>
               Target employee
               <select value={selectedEmployee} onChange={(event) => setSelectedEmployee(event.target.value)}>
-                {options.map((option) => (
-                  <option key={option.id} value={option.id}>
+                {options.map((option) =>
+              <option key={option.id} value={option.id}>
                     {option.label}
                   </option>
-                ))}
+              )}
               </select>
-            </label>
-          ) : (
-            <p className="status-note">Employee role will check in/out for its own account.</p>
-          )}
+            </label> :
+
+          <p className="status-note">Employee role will check in/out for its own account.</p>
+          }
 
           <div className="actions-inline full-width">
             <button type="button" disabled={processing} onClick={() => runAction("checkIn")}>
@@ -142,8 +142,8 @@ export function AttendancePage() {
 
       {message ? <p className="status-note success">{message}</p> : null}
 
-      {record ? (
-        <div className="kv-grid">
+      {record ?
+      <div className="kv-grid">
           <p>
             <span>Attendance date</span>
             <strong>{record.attendanceDate || "-"}</strong>
@@ -160,8 +160,8 @@ export function AttendancePage() {
             <span>Worked hours</span>
             <strong>{record.workedHours ?? "-"}</strong>
           </p>
-        </div>
-      ) : null}
-    </section>
-  );
+        </div> :
+      null}
+    </section>);
+
 }

@@ -9,8 +9,8 @@ import {
   createPosition,
   deletePosition,
   getPositions,
-  updatePosition,
-} from "../services/positionService";
+  updatePosition } from
+"../services/positionService";
 
 function deriveDepartmentsFromPositions(positions) {
   const map = new Map();
@@ -40,7 +40,7 @@ export function PositionsPage() {
     title: "",
     department: "",
     level: "Junior",
-    description: "",
+    description: ""
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +51,7 @@ export function PositionsPage() {
     title: "",
     department: "",
     level: "Junior",
-    description: "",
+    description: ""
   });
 
   async function loadPositions() {
@@ -96,16 +96,16 @@ export function PositionsPage() {
 
   function startEdit(row) {
     const deptId =
-      typeof row.department === "object" && row.department?._id
-        ? row.department._id
-        : row.department || "";
+    typeof row.department === "object" && row.department?._id ?
+    row.department._id :
+    row.department || "";
     setEditingId(row._id);
     setEditForm({
       code: row.code || "",
       title: row.title || "",
       department: String(deptId),
       level: row.level || "Junior",
-      description: row.description || "",
+      description: row.description || ""
     });
   }
 
@@ -140,7 +140,7 @@ export function PositionsPage() {
         title: editForm.title,
         department: editForm.department,
         level: editForm.level,
-        description: editForm.description,
+        description: editForm.description
       });
       cancelEdit();
       await loadPositions();
@@ -171,13 +171,13 @@ export function PositionsPage() {
       return (
         <select name={name} value={value} onChange={onChange} required={required}>
           <option value="">Select department</option>
-          {departments.map((department) => (
-            <option key={department._id} value={department._id}>
+          {departments.map((department) =>
+          <option key={department._id} value={department._id}>
               {department.name}
             </option>
-          ))}
-        </select>
-      );
+          )}
+        </select>);
+
     }
 
     return (
@@ -186,13 +186,13 @@ export function PositionsPage() {
         value={value}
         onChange={onChange}
         placeholder="Department ObjectId"
-        required={required}
-      />
-    );
+        required={required} />);
+
+
   }
 
-  const levelSelect = (value, onChange) => (
-    <select name="level" value={value} onChange={onChange}>
+  const levelSelect = (value, onChange) =>
+  <select name="level" value={value} onChange={onChange}>
       <option value="Intern">Intern</option>
       <option value="Junior">Junior</option>
       <option value="Middle">Middle</option>
@@ -200,15 +200,15 @@ export function PositionsPage() {
       <option value="Lead">Lead</option>
       <option value="Manager">Manager</option>
       <option value="Director">Director</option>
-    </select>
-  );
+    </select>;
+
 
   return (
     <section className="page-card">
       <PageHeader title="Positions" subtitle="GET/POST/PUT/DELETE /positions" />
 
-      {canWrite ? (
-        <form className="form-grid" onSubmit={handleSubmit}>
+      {canWrite ?
+      <form className="form-grid" onSubmit={handleSubmit}>
           <label>
             Code
             <input name="code" value={form.code} onChange={handleChange} placeholder="DEV_L2" required />
@@ -239,8 +239,8 @@ export function PositionsPage() {
               {submitting ? "Creating..." : "Create position"}
             </button>
           </div>
-        </form>
-      ) : null}
+        </form> :
+      null}
 
       {error ? <p className="status-note error">{error}</p> : null}
 
@@ -248,8 +248,8 @@ export function PositionsPage() {
         loading={loading}
         error={error && !positions.length ? error : ""}
         empty={!loading && !error && positions.length === 0}
-        emptyMessage="No positions returned by backend."
-      >
+        emptyMessage="No positions returned by backend.">
+        
         <div className="table-scroll">
           <table>
             <thead>
@@ -263,60 +263,60 @@ export function PositionsPage() {
               </tr>
             </thead>
             <tbody>
-              {positions.map((position) => (
-                <tr key={position._id}>
+              {positions.map((position) =>
+              <tr key={position._id}>
                   <td>
-                    {editingId === position._id ? (
-                      <input name="code" value={editForm.code} onChange={handleEditChange} required />
-                    ) : (
-                      position.code
-                    )}
+                    {editingId === position._id ?
+                  <input name="code" value={editForm.code} onChange={handleEditChange} required /> :
+
+                  position.code
+                  }
                   </td>
                   <td>
-                    {editingId === position._id ? (
-                      <input name="title" value={editForm.title} onChange={handleEditChange} required />
-                    ) : (
-                      position.title
-                    )}
+                    {editingId === position._id ?
+                  <input name="title" value={editForm.title} onChange={handleEditChange} required /> :
+
+                  position.title
+                  }
                   </td>
                   <td>
-                    {editingId === position._id ? (
-                      departmentField("department", editForm.department, handleEditChange, true)
-                    ) : (
-                      position.department?.name || "-"
-                    )}
+                    {editingId === position._id ?
+                  departmentField("department", editForm.department, handleEditChange, true) :
+
+                  position.department?.name || "-"
+                  }
                   </td>
                   <td>
-                    {editingId === position._id ? (
-                      levelSelect(editForm.level, handleEditChange)
-                    ) : (
-                      position.level || "-"
-                    )}
+                    {editingId === position._id ?
+                  levelSelect(editForm.level, handleEditChange) :
+
+                  position.level || "-"
+                  }
                   </td>
                   <td>
-                    {editingId === position._id ? (
-                      <input
-                        name="description"
-                        value={editForm.description}
-                        onChange={handleEditChange}
-                      />
-                    ) : (
-                      position.description || "-"
-                    )}
+                    {editingId === position._id ?
+                  <input
+                    name="description"
+                    value={editForm.description}
+                    onChange={handleEditChange} /> :
+
+
+                  position.description || "-"
+                  }
                   </td>
-                  {canWrite ? (
-                    <td className="actions-inline">
-                      {editingId === position._id ? (
-                        <>
+                  {canWrite ?
+                <td className="actions-inline">
+                      {editingId === position._id ?
+                  <>
                           <button type="button" onClick={(event) => handleEditSubmit(event, position._id)}>
                             Save
                           </button>
                           <button type="button" className="ghost-button" onClick={cancelEdit}>
                             Cancel
                           </button>
-                        </>
-                      ) : (
-                        <>
+                        </> :
+
+                  <>
                           <button type="button" onClick={() => startEdit(position)}>
                             Edit
                           </button>
@@ -324,15 +324,15 @@ export function PositionsPage() {
                             Delete
                           </button>
                         </>
-                      )}
-                    </td>
-                  ) : null}
+                  }
+                    </td> :
+                null}
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

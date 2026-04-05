@@ -32,8 +32,8 @@ export function ForgotPasswordPage() {
       subtitle="Calls /auth/forgot-password directly."
       error={error}
       success={success}
-      links={[{ to: "/login", label: "Back to sign in" }]}
-    >
+      links={[{ to: "/login", label: "Back to sign in" }]}>
+      
       <form className="form-stack" onSubmit={handleSubmit}>
         <label>
           Email
@@ -41,14 +41,14 @@ export function ForgotPasswordPage() {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            required
-          />
+            required />
+          
         </label>
 
         <button type="submit" disabled={loading}>
           {loading ? "Submitting..." : "Send reset request"}
         </button>
       </form>
-    </AuthCard>
-  );
+    </AuthCard>);
+
 }

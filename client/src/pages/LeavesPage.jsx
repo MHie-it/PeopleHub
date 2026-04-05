@@ -9,8 +9,8 @@ import {
   bossActionLeave,
   createLeave,
   getLeaves,
-  leaderActionLeave,
-} from "../services/leaveService";
+  leaderActionLeave } from
+"../services/leaveService";
 
 const leaveTypes = ["ANNUAL", "SICK", "UNPAID", "OTHER"];
 
@@ -18,29 +18,29 @@ const LEAVE_TYPE_LABELS = {
   ANNUAL: "Annual",
   SICK: "Sick",
   UNPAID: "Unpaid",
-  OTHER: "Other",
+  OTHER: "Other"
 };
 
 const leaderActionRoles = [
-  APP_ROLES.LEADER,
-  APP_ROLES.MANAGER,
-  APP_ROLES.HR,
-  APP_ROLES.ADMIN,
-  APP_ROLES.ADMIN_UPPER,
-  APP_ROLES.DIRECTOR,
-  APP_ROLES.BOSS,
-];
+APP_ROLES.LEADER,
+APP_ROLES.MANAGER,
+APP_ROLES.HR,
+APP_ROLES.ADMIN,
+APP_ROLES.ADMIN_UPPER,
+APP_ROLES.DIRECTOR,
+APP_ROLES.BOSS];
 
-/** Matches backend `isPrivilegedLeaveViewer` — sees every employee's requests. */
+
+
 const leavePrivilegedRoles = [
-  APP_ROLES.HR,
-  APP_ROLES.ADMIN,
-  APP_ROLES.ADMIN_UPPER,
-  APP_ROLES.MANAGER,
-  APP_ROLES.LEADER,
-  APP_ROLES.DIRECTOR,
-  APP_ROLES.BOSS,
-];
+APP_ROLES.HR,
+APP_ROLES.ADMIN,
+APP_ROLES.ADMIN_UPPER,
+APP_ROLES.MANAGER,
+APP_ROLES.LEADER,
+APP_ROLES.DIRECTOR,
+APP_ROLES.BOSS];
+
 
 const bossActionRoles = [APP_ROLES.DIRECTOR, APP_ROLES.BOSS];
 
@@ -71,8 +71,8 @@ function LeaveCalendarIcon() {
       <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
       <path d="M3 9h18M8 5V3M16 5V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="12" cy="14" r="1.5" fill="currentColor" />
-    </svg>
-  );
+    </svg>);
+
 }
 
 export function LeavesPage() {
@@ -86,7 +86,7 @@ export function LeavesPage() {
     leaveType: "ANNUAL",
     fromDate: "",
     toDate: "",
-    reason: "",
+    reason: ""
   });
 
   const seesAllLeaves = hasRole(user, leavePrivilegedRoles);
@@ -151,7 +151,7 @@ export function LeavesPage() {
       const note = window.prompt("Optional note (leader step)", "") || "";
       await leaderActionLeave(id, { action, note });
       setMessage(
-        action === "APPROVE" ? "Moved to HR/Boss for approval." : "Rejected at leader step.",
+        action === "APPROVE" ? "Moved to HR/Boss for approval." : "Rejected at leader step."
       );
       await loadLeaves();
     } catch (actionError) {
@@ -188,11 +188,11 @@ export function LeavesPage() {
           <PageHeader
             title="Leave requests"
             subtitle={
-              seesAllLeaves
-                ? "View and process requests as Leader, HR, or Boss."
-                : "Only your own leave requests are shown. Submit a new request below."
-            }
-          />
+            seesAllLeaves ?
+            "View and process requests as Leader, HR, or Boss." :
+            "Only your own leave requests are shown. Submit a new request below."
+            } />
+          
           {countLabel ? <p className="leaves-count-pill">{countLabel}</p> : null}
         </div>
       </div>
@@ -203,11 +203,11 @@ export function LeavesPage() {
           <label>
             Leave type
             <select name="leaveType" value={form.leaveType} onChange={handleChange} required>
-              {leaveTypes.map((item) => (
-                <option key={item} value={item}>
+              {leaveTypes.map((item) =>
+              <option key={item} value={item}>
                   {leaveTypeLabel(item)}
                 </option>
-              ))}
+              )}
             </select>
           </label>
 
@@ -240,10 +240,10 @@ export function LeavesPage() {
         loading={loading}
         error={error}
         empty={!loading && !error && leaves.length === 0}
-        emptyMessage={seesAllLeaves ? "No leave requests yet." : "You have no leave requests yet."}
-      >
-        {seesAllLeaves ? (
-          <div className="table-scroll leaves-table-wrap">
+        emptyMessage={seesAllLeaves ? "No leave requests yet." : "You have no leave requests yet."}>
+        
+        {seesAllLeaves ?
+        <div className="table-scroll leaves-table-wrap">
             <table className="leaves-table">
               <thead>
                 <tr>
@@ -258,8 +258,8 @@ export function LeavesPage() {
                 </tr>
               </thead>
               <tbody>
-                {leaves.map((leave) => (
-                  <tr key={leave._id}>
+                {leaves.map((leave) =>
+              <tr key={leave._id}>
                     <td>
                       <span className="leaves-emp-name">{leave.employee?.fullName || "—"}</span>
                       <span className="leaves-emp-code">{leave.employee?.employeeCode || ""}</span>
@@ -274,56 +274,56 @@ export function LeavesPage() {
                     <td className="leaves-reason-cell">{leave.reason || "—"}</td>
                     <td>
                       <div className="actions-inline">
-                        {leave.status === "PENDING" && canLeaderApprove ? (
-                          <>
+                        {leave.status === "PENDING" && canLeaderApprove ?
+                    <>
                             <button
-                              type="button"
-                              disabled={submitting}
-                              onClick={() => handleLeaderAction(leave._id, "APPROVE")}
-                            >
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => handleLeaderAction(leave._id, "APPROVE")}>
+                        
                               Leader approve
                             </button>
                             <button
-                              type="button"
-                              className="ghost-button"
-                              disabled={submitting}
-                              onClick={() => handleLeaderAction(leave._id, "REJECT")}
-                            >
+                        type="button"
+                        className="ghost-button"
+                        disabled={submitting}
+                        onClick={() => handleLeaderAction(leave._id, "REJECT")}>
+                        
                               Leader reject
                             </button>
-                          </>
-                        ) : null}
+                          </> :
+                    null}
 
-                        {leave.status === "PENDING_HR" && canBossApprove ? (
-                          <>
+                        {leave.status === "PENDING_HR" && canBossApprove ?
+                    <>
                             <button
-                              type="button"
-                              disabled={submitting}
-                              onClick={() => handleBossAction(leave._id, "APPROVE")}
-                            >
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => handleBossAction(leave._id, "APPROVE")}>
+                        
                               Boss approve
                             </button>
                             <button
-                              type="button"
-                              className="ghost-button"
-                              disabled={submitting}
-                              onClick={() => handleBossAction(leave._id, "REJECT")}
-                            >
+                        type="button"
+                        className="ghost-button"
+                        disabled={submitting}
+                        onClick={() => handleBossAction(leave._id, "REJECT")}>
+                        
                               Boss reject
                             </button>
-                          </>
-                        ) : null}
+                          </> :
+                    null}
                       </div>
                     </td>
                   </tr>
-                ))}
+              )}
               </tbody>
             </table>
-          </div>
-        ) : (
-          <div className="leave-cards">
-            {leaves.map((leave) => (
-              <article className="leave-card" key={leave._id}>
+          </div> :
+
+        <div className="leave-cards">
+            {leaves.map((leave) =>
+          <article className="leave-card" key={leave._id}>
                 <header className="leave-card__head">
                   <div>
                     <p className="leave-card__label">Leave type</p>
@@ -345,17 +345,17 @@ export function LeavesPage() {
                     <span className="leave-card__dd leave-card__days">{leave.totalDays ?? "—"}</span>
                   </div>
                 </div>
-                {leave.reason ? (
-                  <footer className="leave-card__notes">
+                {leave.reason ?
+            <footer className="leave-card__notes">
                     <span className="leave-card__notes-label">Reason</span>
                     <p>{leave.reason}</p>
-                  </footer>
-                ) : null}
+                  </footer> :
+            null}
               </article>
-            ))}
+          )}
           </div>
-        )}
+        }
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

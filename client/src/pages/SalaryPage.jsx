@@ -25,7 +25,7 @@ export function SalaryPage() {
     allowance: "0",
     bonus: "0",
     deduction: "0",
-    note: "",
+    note: ""
   });
 
   const canSetSalary = hasRole(user, setSalaryRoles);
@@ -45,7 +45,7 @@ export function SalaryPage() {
           return;
         }
       } catch {
-        // Fallback to current user's profile if /employees is not allowed for this role.
+
       }
 
       try {
@@ -57,7 +57,7 @@ export function SalaryPage() {
           return;
         }
       } catch {
-        // Keep manual input flow when both options are unavailable.
+
       }
 
       setEmployees([]);
@@ -113,7 +113,7 @@ export function SalaryPage() {
         allowance: Number(form.allowance || 0),
         bonus: Number(form.bonus || 0),
         deduction: Number(form.deduction || 0),
-        note: form.note,
+        note: form.note
       });
 
       setMessage("Salary configured successfully.");
@@ -132,75 +132,75 @@ export function SalaryPage() {
     <section className="page-card">
       <PageHeader title="Salary" subtitle="Data source: /salary" />
 
-      {employees.length > 0 ? (
-        <label>
+      {employees.length > 0 ?
+      <label>
           Employee
           <select value={selectedEmployeeId} onChange={(event) => setSelectedEmployeeId(event.target.value)}>
-            {employees.map((employee) => (
-              <option key={employee._id} value={employee._id}>
+            {employees.map((employee) =>
+          <option key={employee._id} value={employee._id}>
                 {employee.fullName || employee.user?.username || employee._id}
               </option>
-            ))}
+          )}
           </select>
-        </label>
-      ) : (
-        <label>
+        </label> :
+
+      <label>
           Employee ID
           <input
-            value={selectedEmployeeId}
-            onChange={(event) => setSelectedEmployeeId(event.target.value)}
-            placeholder="Input employee ObjectId"
-          />
+          value={selectedEmployeeId}
+          onChange={(event) => setSelectedEmployeeId(event.target.value)}
+          placeholder="Input employee ObjectId" />
+        
         </label>
-      )}
+      }
 
       {selectedEmployeeLabel ? <p className="status-note">Selected: {selectedEmployeeLabel}</p> : null}
 
-      {canSetSalary ? (
-        <form className="form-grid" onSubmit={handleSetSalary}>
+      {canSetSalary ?
+      <form className="form-grid" onSubmit={handleSetSalary}>
           <label>
             Base salary
             <input
-              type="number"
-              value={form.baseSalary}
-              onChange={(event) => setForm((previous) => ({ ...previous, baseSalary: event.target.value }))}
-              required
-            />
+            type="number"
+            value={form.baseSalary}
+            onChange={(event) => setForm((previous) => ({ ...previous, baseSalary: event.target.value }))}
+            required />
+          
           </label>
 
           <label>
             Allowance
             <input
-              type="number"
-              value={form.allowance}
-              onChange={(event) => setForm((previous) => ({ ...previous, allowance: event.target.value }))}
-            />
+            type="number"
+            value={form.allowance}
+            onChange={(event) => setForm((previous) => ({ ...previous, allowance: event.target.value }))} />
+          
           </label>
 
           <label>
             Bonus
             <input
-              type="number"
-              value={form.bonus}
-              onChange={(event) => setForm((previous) => ({ ...previous, bonus: event.target.value }))}
-            />
+            type="number"
+            value={form.bonus}
+            onChange={(event) => setForm((previous) => ({ ...previous, bonus: event.target.value }))} />
+          
           </label>
 
           <label>
             Deduction
             <input
-              type="number"
-              value={form.deduction}
-              onChange={(event) => setForm((previous) => ({ ...previous, deduction: event.target.value }))}
-            />
+            type="number"
+            value={form.deduction}
+            onChange={(event) => setForm((previous) => ({ ...previous, deduction: event.target.value }))} />
+          
           </label>
 
           <label className="full-width">
             Note
             <input
-              value={form.note}
-              onChange={(event) => setForm((previous) => ({ ...previous, note: event.target.value }))}
-            />
+            value={form.note}
+            onChange={(event) => setForm((previous) => ({ ...previous, note: event.target.value }))} />
+          
           </label>
 
           <div className="full-width actions-inline">
@@ -208,10 +208,10 @@ export function SalaryPage() {
               {submitting ? "Saving..." : "Set salary"}
             </button>
           </div>
-        </form>
-      ) : (
-        <p className="status-note">Only Director/Boss roles can set salary values. You can still view history.</p>
-      )}
+        </form> :
+
+      <p className="status-note">Only Director/Boss roles can set salary values. You can still view history.</p>
+      }
 
       {error ? <p className="status-note error">{error}</p> : null}
       {message ? <p className="status-note success">{message}</p> : null}
@@ -220,8 +220,8 @@ export function SalaryPage() {
         loading={loadingEmployees || loadingHistory}
         error={false}
         empty={!selectedEmployeeId || salaryHistory.length === 0}
-        emptyMessage="No salary history found for selected employee."
-      >
+        emptyMessage="No salary history found for selected employee.">
+        
         <div className="table-scroll">
           <table>
             <thead>
@@ -236,8 +236,8 @@ export function SalaryPage() {
               </tr>
             </thead>
             <tbody>
-              {salaryHistory.map((salary) => (
-                <tr key={salary._id}>
+              {salaryHistory.map((salary) =>
+              <tr key={salary._id}>
                   <td>{formatDate(salary.effectiveFrom)}</td>
                   <td>{salary.baseSalary ?? "-"}</td>
                   <td>{salary.allowance ?? "-"}</td>
@@ -246,11 +246,11 @@ export function SalaryPage() {
                   <td>{salary.netSalary ?? "-"}</td>
                   <td>{salary.note || "-"}</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

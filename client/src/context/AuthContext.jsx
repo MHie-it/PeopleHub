@@ -4,8 +4,8 @@ import {
   forgotPassword as forgotPasswordRequest,
   getMe,
   login as loginRequest,
-  register as registerRequest,
-} from "../services/authService";
+  register as registerRequest } from
+"../services/authService";
 import { clearToken, getToken, setToken } from "../lib/storage";
 
 export const AuthContext = createContext(null);
@@ -132,9 +132,9 @@ export function AuthProvider({ children }) {
       logout,
       syncMe,
       forgotPassword,
-      changePassword,
+      changePassword
     }),
-    [token, user, isBootstrapping, login, register, logout, syncMe, forgotPassword, changePassword],
+    [token, user, isBootstrapping, login, register, logout, syncMe, forgotPassword, changePassword]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

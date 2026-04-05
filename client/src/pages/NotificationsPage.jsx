@@ -4,19 +4,21 @@ import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { formatDateTime } from "../lib/formatters";
+import { APP_ROLES, hasRole } from "../lib/roles";
 import {
   createNotification,
+  createGlobalNotification,
   getNotificationsByUser,
-  markNotificationRead,
-} from "../services/notificationService";
+  markNotificationRead } from
+"../services/notificationService";
 
 const notificationTypes = [
-  "LEAVE_REQUEST_CREATED",
-  "LEAVE_REQUEST_APPROVED",
-  "LEAVE_REQUEST_REJECTED",
-  "PAYROLL_GENERATED",
-  "SYSTEM",
-];
+"LEAVE_REQUEST_CREATED",
+"LEAVE_REQUEST_APPROVED",
+"LEAVE_REQUEST_REJECTED",
+"PAYROLL_GENERATED",
+"SYSTEM"];
+
 
 export function NotificationsPage() {
   const { user } = useAuth();
@@ -25,13 +27,15 @@ export function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [sendGlobal, setSendGlobal] = useState(false);
   const [error, setError] = useState("");
+  const canSendGlobal = hasRole(user, [APP_ROLES.HR, APP_ROLES.ADMIN, APP_ROLES.MANAGER, APP_ROLES.BOSS, APP_ROLES.DIRECTOR]);
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({
     receiver: userId,
     type: "SYSTEM",
     title: "",
-    message: "",
+    message: ""
   });
 
   useEffect(() => {
@@ -73,9 +77,16 @@ export function NotificationsPage() {
     setMessage("");
 
     try {
-      await createNotification({ ...form, receiver: form.receiver || userId });
+      if (sendGlobal && canSendGlobal) {
+        await createGlobalNotification({ type: form.type, title: form.title, message: form.message });
+        setMessage("Broadcast notification sent successfully.");
+      } else {
+        await createNotification({ ...form, receiver: form.receiver || userId });
+        setMessage("Notification created successfully.");
+      }
+
       setForm({ receiver: userId, type: "SYSTEM", title: "", message: "" });
-      setMessage("Notification created successfully.");
+      setSendGlobal(false);
       await loadNotifications();
     } catch (submitError) {
       setError(extractErrorMessage(submitError, "Unable to create notification"));
@@ -104,39 +115,41 @@ export function NotificationsPage() {
     <section className="page-card">
       <PageHeader title="Notifications" subtitle="Data source: /notifi" />
 
-      <form className="form-grid" onSubmit={handleCreateNotification}>
-        <label>
-          Receiver user ID
-          <input name="receiver" value={form.receiver} onChange={handleFormChange} required />
-        </label>
-
-        <label>
-          Type
-          <select name="type" value={form.type} onChange={handleFormChange}>
-            {notificationTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="full-width">
-          Title
-          <input name="title" value={form.title} onChange={handleFormChange} required />
-        </label>
-
-        <label className="full-width">
-          Message
-          <textarea name="message" value={form.message} onChange={handleFormChange} required />
-        </label>
-
-        <div className="full-width actions-inline">
-          <button type="submit" disabled={submitting}>
-            {submitting ? "Creating..." : "Create notification"}
-          </button>
-        </div>
-      </form>
+      {hasRole(user, [APP_ROLES.ADMIN, APP_ROLES.HR, APP_ROLES.MANAGER, APP_ROLES.BOSS, APP_ROLES.DIRECTOR, APP_ROLES.LEADER]) && (
+        <form className="form-grid" onSubmit={handleCreateNotification}>
+          {canSendGlobal && (
+            <label className="full-width" style={{ flexDirection: "row", alignItems: "center", gap: "0.5rem" }}>
+              <input type="checkbox" checked={sendGlobal} onChange={(e) => setSendGlobal(e.target.checked)} />
+              <span>Broadcast to all employees (Send to all)</span>
+            </label>
+          )}
+          <label>
+            Receiver user ID
+            <input name="receiver" value={sendGlobal ? "ALL USERS" : form.receiver} onChange={handleFormChange} required={!sendGlobal} disabled={sendGlobal} />
+          </label>
+          <label>
+            Type
+            <select name="type" value={form.type} onChange={handleFormChange}>
+              {notificationTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </label>
+          <label className="full-width">
+            Title
+            <input name="title" value={form.title} onChange={handleFormChange} required />
+          </label>
+          <label className="full-width">
+            Message
+            <textarea name="message" value={form.message} onChange={handleFormChange} required />
+          </label>
+          <div className="full-width actions-inline">
+            <button type="submit" disabled={submitting}>
+              {submitting ? "Creating..." : "Create notification"}
+            </button>
+          </div>
+        </form>
+      )}
 
       {error ? <p className="status-note error">{error}</p> : null}
       {message ? <p className="status-note success">{message}</p> : null}
@@ -145,8 +158,8 @@ export function NotificationsPage() {
         loading={loading}
         error={error}
         empty={!loading && !error && notifications.length === 0}
-        emptyMessage="No notifications found for this user."
-      >
+        emptyMessage="No notifications found for this user.">
+        
         <div className="table-scroll">
           <table>
             <thead>
@@ -160,32 +173,32 @@ export function NotificationsPage() {
               </tr>
             </thead>
             <tbody>
-              {notifications.map((notification) => (
-                <tr key={notification._id}>
+              {notifications.map((notification) =>
+              <tr key={notification._id}>
                   <td>{notification.title || "-"}</td>
                   <td>{notification.message || "-"}</td>
                   <td>{notification.type || "SYSTEM"}</td>
                   <td>{formatDateTime(notification.createdAt)}</td>
                   <td>{notification.isRead ? "Yes" : "No"}</td>
                   <td>
-                    {!notification.isRead ? (
-                      <button
-                        type="button"
-                        disabled={submitting}
-                        onClick={() => handleMarkRead(notification._id)}
-                      >
+                    {!notification.isRead ?
+                  <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => handleMarkRead(notification._id)}>
+                    
                         Mark read
-                      </button>
-                    ) : (
-                      "-"
-                    )}
+                      </button> :
+
+                  "-"
+                  }
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

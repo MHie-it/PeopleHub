@@ -35,7 +35,7 @@ async function checkIn(req, res) {
   const attendanceDate = getAttendanceDate(new Date());
   const now = new Date();
 
-  // Nếu record hôm nay đã có checkInAt => lỗi
+
   const existed = await Attendance.findOne({ employeeId, attendanceDate });
   if (existed?.checkInAt) {
     return res.status(400).send({ success: false, message: 'Đã check-in hôm nay' });
@@ -45,13 +45,13 @@ async function checkIn(req, res) {
     const record = existed || new Attendance({ employeeId, attendanceDate });
     record.checkInAt = now;
 
-    // Nếu bạn muốn chặn checkOutAt cũ (trong trường hợp record đã tồn tại):
-    // record.checkOutAt = record.checkOutAt ?? null;
+
+
 
     await record.save();
     return res.status(200).send({ success: true, data: record, message: 'Check-in thành công' });
   } catch (err) {
-    // Unique index trùng (race condition)
+
     if (err && err.code === 11000) {
       return res.status(400).send({ success: false, message: 'Đã check-in hôm nay' });
     }

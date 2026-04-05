@@ -9,8 +9,8 @@ import {
   canAccessPositions,
   canAccessUsers,
   canUseAttendance,
-  canViewRoles,
-} from "../lib/permissions";
+  canViewRoles } from
+"../lib/permissions";
 
 const primaryNavItems = [
   { to: "/employees", label: "Employees", check: canAccessEmployees },
@@ -24,7 +24,6 @@ const primaryNavItems = [
   { to: "/salary", label: "Salary" },
   { to: "/notifications", label: "Notifications", check: canAccessNotifications },
   { to: "/contracts", label: "Contracts", check: canAccessContracts },
-  { to: "/profile", label: "Profile" },
 ];
 
 const unavailableItems = [];
@@ -49,25 +48,25 @@ export function AppShell() {
 
         <nav className="nav-group" aria-label="Primary navigation">
           <p className="nav-title">Operations</p>
-          {primaryNavItems
-            .filter((item) => canDisplayItem(user, item))
-            .map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.to === "/"} className="nav-link">
+          {primaryNavItems.
+          filter((item) => canDisplayItem(user, item)).
+          map((item) =>
+          <NavLink key={item.to} to={item.to} end={item.to === "/"} className="nav-link">
                 {item.label}
               </NavLink>
-            ))}
+          )}
         </nav>
 
-        {unavailableItems.length > 0 ? (
-          <nav className="nav-group" aria-label="Unavailable API modules">
+        {unavailableItems.length > 0 ?
+        <nav className="nav-group" aria-label="Unavailable API modules">
             <p className="nav-title">Pending APIs</p>
-            {unavailableItems.map((item) => (
-              <NavLink key={item.to} to={item.to} className="nav-link muted">
+            {unavailableItems.map((item) =>
+          <NavLink key={item.to} to={item.to} className="nav-link muted">
                 {item.label}
               </NavLink>
-            ))}
-          </nav>
-        ) : null}
+          )}
+          </nav> :
+        null}
       </aside>
 
       <section className="app-main">
@@ -92,6 +91,6 @@ export function AppShell() {
           <Outlet />
         </main>
       </section>
-    </div>
-  );
+    </div>);
+
 }

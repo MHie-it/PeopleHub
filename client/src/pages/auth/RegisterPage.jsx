@@ -42,8 +42,8 @@ export function RegisterPage() {
       subtitle="Registers through /auth/register and stores no mock data."
       error={error}
       success={success}
-      links={[{ to: "/login", label: "Already have an account? Sign in" }]}
-    >
+      links={[{ to: "/login", label: "Already have an account? Sign in" }]}>
+      
       <form className="form-stack" onSubmit={handleSubmit}>
         <label>
           Username
@@ -52,8 +52,8 @@ export function RegisterPage() {
             value={form.username}
             onChange={handleChange}
             placeholder="johndoe"
-            required
-          />
+            required />
+          
         </label>
 
         <label>
@@ -63,8 +63,8 @@ export function RegisterPage() {
             name="email"
             value={form.email}
             onChange={handleChange}
-            required
-          />
+            required />
+          
         </label>
 
         <label>
@@ -74,14 +74,14 @@ export function RegisterPage() {
             name="password"
             value={form.password}
             onChange={handleChange}
-            required
-          />
+            required />
+          
         </label>
 
         <button type="submit" disabled={loading}>
           {loading ? "Creating account..." : "Register"}
         </button>
       </form>
-    </AuthCard>
-  );
+    </AuthCard>);
+
 }

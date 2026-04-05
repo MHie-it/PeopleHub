@@ -6,8 +6,8 @@ import {
   canAccessDepartments,
   canAccessEmployees,
   canAccessPositions,
-  canViewRoles,
-} from "../lib/permissions";
+  canViewRoles } from
+"../lib/permissions";
 import { getEmployees } from "../services/employeeService";
 import { getDepartments } from "../services/departmentService";
 import { getPositions } from "../services/positionService";
@@ -33,7 +33,7 @@ export function DashboardPage() {
     employees: null,
     departments: null,
     positions: null,
-    roles: null,
+    roles: null
   });
 
   useEffect(() => {
@@ -47,33 +47,33 @@ export function DashboardPage() {
 
       if (canAccessEmployees(user)) {
         tasks.push(
-          getEmployees()
-            .then((value) => ({ key: "employees", value }))
-            .catch(() => ({ key: "employees", value: null })),
+          getEmployees().
+          then((value) => ({ key: "employees", value })).
+          catch(() => ({ key: "employees", value: null }))
         );
       }
 
       if (canAccessDepartments(user)) {
         tasks.push(
-          getDepartments()
-            .then((value) => ({ key: "departments", value }))
-            .catch(() => ({ key: "departments", value: null })),
+          getDepartments().
+          then((value) => ({ key: "departments", value })).
+          catch(() => ({ key: "departments", value: null }))
         );
       }
 
       if (canAccessPositions(user)) {
         tasks.push(
-          getPositions()
-            .then((value) => ({ key: "positions", value }))
-            .catch(() => ({ key: "positions", value: null })),
+          getPositions().
+          then((value) => ({ key: "positions", value })).
+          catch(() => ({ key: "positions", value: null }))
         );
       }
 
       if (canViewRoles(user)) {
         tasks.push(
-          getRoles()
-            .then((value) => ({ key: "roles", value }))
-            .catch(() => ({ key: "roles", value: null })),
+          getRoles().
+          then((value) => ({ key: "roles", value })).
+          catch(() => ({ key: "roles", value: null }))
         );
       }
 
@@ -87,7 +87,7 @@ export function DashboardPage() {
           employees: null,
           departments: null,
           positions: null,
-          roles: null,
+          roles: null
         };
 
         results.forEach((entry) => {
@@ -117,18 +117,18 @@ export function DashboardPage() {
   }, [user]);
 
   const cards = [
-    canAccessEmployees(user) ? { label: "Employees", value: stats.employees } : null,
-    canAccessDepartments(user) ? { label: "Departments", value: stats.departments } : null,
-    canAccessPositions(user) ? { label: "Positions", value: stats.positions } : null,
-    canViewRoles(user) ? { label: "Roles", value: stats.roles } : null,
-  ].filter(Boolean);
+  canAccessEmployees(user) ? { label: "Employees", value: stats.employees } : null,
+  canAccessDepartments(user) ? { label: "Departments", value: stats.departments } : null,
+  canAccessPositions(user) ? { label: "Positions", value: stats.positions } : null,
+  canViewRoles(user) ? { label: "Roles", value: stats.roles } : null].
+  filter(Boolean);
 
   return (
     <section className="page-card">
       <PageHeader
         title="Operational Overview"
-        subtitle="Live values are pulled from your current backend APIs and database records."
-      />
+        subtitle="Live values are pulled from your current backend APIs and database records." />
+      
 
       <div className="hero-inline">
         <div>
@@ -146,18 +146,18 @@ export function DashboardPage() {
 
       {error ? <p className="status-note error">{error}</p> : null}
 
-      {cards.length === 0 ? (
-        <p className="status-note">No directory metrics are available for your role on this screen.</p>
-      ) : (
-        <div className="metric-grid">
-          {cards.map((card) => (
-            <article key={card.label} className="metric-card">
+      {cards.length === 0 ?
+      <p className="status-note">No directory metrics are available for your role on this screen.</p> :
+
+      <div className="metric-grid">
+          {cards.map((card) =>
+        <article key={card.label} className="metric-card">
               <p>{card.label}</p>
               <h3>{loading ? "..." : card.value ?? "N/A"}</h3>
             </article>
-          ))}
+        )}
         </div>
-      )}
-    </section>
-  );
+      }
+    </section>);
+
 }

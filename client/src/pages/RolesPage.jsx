@@ -103,22 +103,22 @@ export function RolesPage() {
       <PageHeader
         title="Roles"
         subtitle={
-          canEdit
-            ? "Data source: /role (admin: full CRUD)"
-            : "View only: Boss/HR cannot add, edit, or delete roles on this UI."
-        }
-      />
+        canEdit ?
+        "Data source: /role (admin: full CRUD)" :
+        "View only: Boss/HR cannot add, edit, or delete roles on this UI."
+        } />
+      
 
-      {canEdit ? (
-        <form className="form-grid" onSubmit={handleCreateSubmit}>
+      {canEdit ?
+      <form className="form-grid" onSubmit={handleCreateSubmit}>
           <label>
             Role name
             <select name="name" value={form.name} onChange={handleCreateChange}>
-              {roleOptions.map((option) => (
-                <option key={option} value={option}>
+              {roleOptions.map((option) =>
+            <option key={option} value={option}>
                   {option}
                 </option>
-              ))}
+            )}
             </select>
           </label>
 
@@ -130,8 +130,8 @@ export function RolesPage() {
           <div className="full-width actions-inline">
             <button type="submit">Create role</button>
           </div>
-        </form>
-      ) : null}
+        </form> :
+      null}
 
       {error ? <p className="status-note error">{error}</p> : null}
 
@@ -139,8 +139,8 @@ export function RolesPage() {
         loading={loading}
         error={error}
         empty={!loading && !error && roles.length === 0}
-        emptyMessage="No roles returned by backend."
-      >
+        emptyMessage="No roles returned by backend.">
+        
         <div className="table-scroll">
           <table>
             <thead>
@@ -151,46 +151,46 @@ export function RolesPage() {
               </tr>
             </thead>
             <tbody>
-              {roles.map((role) => (
-                <tr key={role._id}>
+              {roles.map((role) =>
+              <tr key={role._id}>
                   <td>
-                    {editingId === role._id ? (
-                      <select name="name" value={editForm.name} onChange={handleEditChange}>
-                        {roleOptions.map((option) => (
-                          <option key={option} value={option}>
+                    {editingId === role._id ?
+                  <select name="name" value={editForm.name} onChange={handleEditChange}>
+                        {roleOptions.map((option) =>
+                    <option key={option} value={option}>
                             {option}
                           </option>
-                        ))}
-                      </select>
-                    ) : (
-                      role.name
                     )}
+                      </select> :
+
+                  role.name
+                  }
                   </td>
                   <td>
-                    {editingId === role._id ? (
-                      <input
-                        name="description"
-                        value={editForm.description}
-                        onChange={handleEditChange}
-                      />
-                    ) : (
-                      role.description || "-"
-                    )}
+                    {editingId === role._id ?
+                  <input
+                    name="description"
+                    value={editForm.description}
+                    onChange={handleEditChange} /> :
+
+
+                  role.description || "-"
+                  }
                   </td>
                   <td className="actions-inline">
-                    {!canEdit ? (
-                      <span className="status-note">—</span>
-                    ) : editingId === role._id ? (
-                      <>
+                    {!canEdit ?
+                  <span className="status-note">—</span> :
+                  editingId === role._id ?
+                  <>
                         <button type="button" onClick={(event) => handleEditSubmit(event, role._id)}>
                           Save
                         </button>
                         <button type="button" className="ghost-button" onClick={cancelEdit}>
                           Cancel
                         </button>
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                  <>
                         <button type="button" onClick={() => startEdit(role)}>
                           Edit
                         </button>
@@ -198,14 +198,14 @@ export function RolesPage() {
                           Delete
                         </button>
                       </>
-                    )}
+                  }
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

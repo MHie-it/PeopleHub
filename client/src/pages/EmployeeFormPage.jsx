@@ -11,8 +11,8 @@ import {
   createEmployee,
   getEmployeeById,
   getEmployees,
-  updateEmployee,
-} from "../services/employeeService";
+  updateEmployee } from
+"../services/employeeService";
 import { getPositions } from "../services/positionService";
 import { getRoles } from "../services/roleService";
 
@@ -31,7 +31,7 @@ const initialForm = {
   position: "",
   manager: "",
   joinDate: "",
-  employmentStatus: "ACTIVE",
+  employmentStatus: "ACTIVE"
 };
 
 function deriveDepartmentsFromPositions(positions) {
@@ -64,7 +64,7 @@ export function EmployeeFormPage() {
     departments: [],
     positions: [],
     managers: [],
-    roles: [],
+    roles: []
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -89,11 +89,11 @@ export function EmployeeFormPage() {
 
       try {
         const [positionsRes, employeesRes, rolesRes, departmentsRes] = await Promise.allSettled([
-          getPositions(),
-          getEmployees(),
-          getRoles(),
-          getDepartments(),
-        ]);
+        getPositions(),
+        getEmployees(),
+        getRoles(),
+        getDepartments()]
+        );
 
         if (!active) {
           return;
@@ -103,9 +103,9 @@ export function EmployeeFormPage() {
         const managers = employeesRes.status === "fulfilled" ? employeesRes.value?.data || [] : [];
         const roles = rolesRes.status === "fulfilled" ? rolesRes.value || [] : [];
         const departments =
-          departmentsRes.status === "fulfilled"
-            ? departmentsRes.value?.data || []
-            : deriveDepartmentsFromPositions(positions);
+        departmentsRes.status === "fulfilled" ?
+        departmentsRes.value?.data || [] :
+        deriveDepartmentsFromPositions(positions);
 
         setMeta({ departments, positions, managers, roles });
 
@@ -124,7 +124,7 @@ export function EmployeeFormPage() {
               position: employee.position?._id || "",
               manager: employee.manager?._id || "",
               joinDate: toDateInputValue(employee.joinDate),
-              employmentStatus: employee.employmentStatus || "ACTIVE",
+              employmentStatus: employee.employmentStatus || "ACTIVE"
             }));
           }
         }
@@ -156,14 +156,14 @@ export function EmployeeFormPage() {
     if (name === "position") {
       const position = meta.positions.find((item) => item._id === value);
       const positionDepartment =
-        typeof position?.department === "object"
-          ? position.department?._id
-          : position?.department;
+      typeof position?.department === "object" ?
+      position.department?._id :
+      position?.department;
 
       setForm((previous) => ({
         ...previous,
         position: value,
-        department: positionDepartment || previous.department,
+        department: positionDepartment || previous.department
       }));
       return;
     }
@@ -180,9 +180,9 @@ export function EmployeeFormPage() {
     try {
       const position = meta.positions.find((item) => item._id === form.position);
       const positionDepartment =
-        typeof position?.department === "object"
-          ? position.department?._id
-          : position?.department;
+      typeof position?.department === "object" ?
+      position.department?._id :
+      position?.department;
 
       const department = form.department || positionDepartment || "";
       if (!leaderDeptScopedEdit && !department) {
@@ -190,27 +190,27 @@ export function EmployeeFormPage() {
       }
 
       if (isEditMode) {
-        const updatePayload = leaderDeptScopedEdit
-          ? {
-              fullName: form.fullName,
-              dateOfBirth: form.dateOfBirth || null,
-              gender: form.gender,
-              phone: form.phone,
-              address: form.address,
-              employmentStatus: form.employmentStatus,
-            }
-          : {
-              fullName: form.fullName,
-              dateOfBirth: form.dateOfBirth || null,
-              gender: form.gender,
-              phone: form.phone,
-              address: form.address,
-              department,
-              position: form.position,
-              manager: form.manager || null,
-              joinDate: form.joinDate,
-              employmentStatus: form.employmentStatus,
-            };
+        const updatePayload = leaderDeptScopedEdit ?
+        {
+          fullName: form.fullName,
+          dateOfBirth: form.dateOfBirth || null,
+          gender: form.gender,
+          phone: form.phone,
+          address: form.address,
+          employmentStatus: form.employmentStatus
+        } :
+        {
+          fullName: form.fullName,
+          dateOfBirth: form.dateOfBirth || null,
+          gender: form.gender,
+          phone: form.phone,
+          address: form.address,
+          department,
+          position: form.position,
+          manager: form.manager || null,
+          joinDate: form.joinDate,
+          employmentStatus: form.employmentStatus
+        };
 
         await updateEmployee(id, updatePayload);
         setSuccess("Employee profile updated successfully.");
@@ -229,7 +229,7 @@ export function EmployeeFormPage() {
           department,
           position: form.position,
           manager: form.manager || null,
-          joinDate: form.joinDate,
+          joinDate: form.joinDate
         };
 
         await createEmployee(createPayload);
@@ -252,21 +252,21 @@ export function EmployeeFormPage() {
       <PageHeader
         title={isEditMode ? "Edit Employee" : "Create Employee"}
         subtitle={
-          isEditMode
-            ? "Updates employee profile through PUT /employees/:id"
-            : "Creates user + employee through POST /employees/create"
+        isEditMode ?
+        "Updates employee profile through PUT /employees/:id" :
+        "Creates user + employee through POST /employees/create"
         }
-        actions={<Link to="/employees">Back to list</Link>}
-      />
+        actions={<Link to="/employees">Back to list</Link>} />
+      
 
       {loading ? <p className="status-note">Loading form dependencies...</p> : null}
       {error ? <p className="status-note error">{error}</p> : null}
       {success ? <p className="status-note success">{success}</p> : null}
 
-      {!loading && mayUseForm ? (
-        <form className="form-grid" onSubmit={handleSubmit}>
-          {!isEditMode ? (
-            <>
+      {!loading && mayUseForm ?
+      <form className="form-grid" onSubmit={handleSubmit}>
+          {!isEditMode ?
+        <>
               <label>
                 Username
                 <input name="username" value={form.username} onChange={handleChange} required />
@@ -285,27 +285,27 @@ export function EmployeeFormPage() {
               <label>
                 Employee code
                 <input
-                  name="employeeCode"
-                  value={form.employeeCode}
-                  onChange={handleChange}
-                  placeholder="EMP001"
-                  required
-                />
+              name="employeeCode"
+              value={form.employeeCode}
+              onChange={handleChange}
+              placeholder="EMP001"
+              required />
+            
               </label>
 
               <label>
                 Role (optional)
                 <select name="roleId" value={form.roleId} onChange={handleChange}>
                   <option value="">Default Employee</option>
-                  {meta.roles.map((role) => (
-                    <option key={role._id} value={role._id}>
+                  {meta.roles.map((role) =>
+              <option key={role._id} value={role._id}>
                       {role.name}
                     </option>
-                  ))}
+              )}
                 </select>
               </label>
-            </>
-          ) : null}
+            </> :
+        null}
 
           <label>
             Full name
@@ -336,51 +336,51 @@ export function EmployeeFormPage() {
             <input name="address" value={form.address} onChange={handleChange} />
           </label>
 
-          {!leaderDeptScopedEdit ? (
-            <>
+          {!leaderDeptScopedEdit ?
+        <>
               <label>
                 Position
                 <select name="position" value={form.position} onChange={handleChange} required>
                   <option value="">Select position</option>
-                  {meta.positions.map((position) => (
-                    <option key={position._id} value={position._id}>
+                  {meta.positions.map((position) =>
+              <option key={position._id} value={position._id}>
                       {position.title}
                     </option>
-                  ))}
+              )}
                 </select>
               </label>
 
               <label>
                 Department
-                {meta.departments.length > 0 ? (
-                  <select name="department" value={form.department} onChange={handleChange} required>
+                {meta.departments.length > 0 ?
+            <select name="department" value={form.department} onChange={handleChange} required>
                     <option value="">Select department</option>
-                    {meta.departments.map((department) => (
-                      <option key={department._id} value={department._id}>
+                    {meta.departments.map((department) =>
+              <option key={department._id} value={department._id}>
                         {department.name}
                       </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    name="department"
-                    value={form.department}
-                    onChange={handleChange}
-                    placeholder="Department ObjectId"
-                    required
-                  />
-                )}
+              )}
+                  </select> :
+
+            <input
+              name="department"
+              value={form.department}
+              onChange={handleChange}
+              placeholder="Department ObjectId"
+              required />
+
+            }
               </label>
 
               <label>
                 Manager
                 <select name="manager" value={form.manager} onChange={handleChange}>
                   <option value="">No manager</option>
-                  {managerOptions.map((manager) => (
-                    <option key={manager._id} value={manager._id}>
+                  {managerOptions.map((manager) =>
+              <option key={manager._id} value={manager._id}>
                       {manager.fullName} ({manager.employeeCode})
                     </option>
-                  ))}
+              )}
                 </select>
               </label>
 
@@ -388,16 +388,16 @@ export function EmployeeFormPage() {
                 Join date
                 <input type="date" name="joinDate" value={form.joinDate} onChange={handleChange} required />
               </label>
-            </>
-          ) : (
-            <p className="status-note full-width">
+            </> :
+
+        <p className="status-note full-width">
               As a leader you can update personal and employment status fields for employees in your department
               only. Position, department, manager, and join date are managed by HR.
             </p>
-          )}
+        }
 
-          {isEditMode ? (
-            <label>
+          {isEditMode ?
+        <label>
               Employment status
               <select name="employmentStatus" value={form.employmentStatus} onChange={handleChange}>
                 <option value="PROBATION">PROBATION</option>
@@ -406,16 +406,16 @@ export function EmployeeFormPage() {
                 <option value="RESIGNED">RESIGNED</option>
                 <option value="TERMINATED">TERMINATED</option>
               </select>
-            </label>
-          ) : null}
+            </label> :
+        null}
 
           <div className="full-width actions-inline">
             <button type="submit" disabled={submitting}>
               {submitting ? "Submitting..." : isEditMode ? "Update employee" : "Create employee"}
             </button>
           </div>
-        </form>
-      ) : null}
-    </section>
-  );
+        </form> :
+      null}
+    </section>);
+
 }

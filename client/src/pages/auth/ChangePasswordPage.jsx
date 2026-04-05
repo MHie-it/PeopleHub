@@ -38,8 +38,8 @@ export function ChangePasswordPage() {
       subtitle="Directly uses /auth/change-password endpoint."
       error={error}
       success={success}
-      links={[{ to: "/login", label: "Back to sign in" }]}
-    >
+      links={[{ to: "/login", label: "Back to sign in" }]}>
+      
       <form className="form-stack" onSubmit={handleSubmit}>
         <label>
           Email
@@ -48,8 +48,8 @@ export function ChangePasswordPage() {
             name="email"
             value={form.email}
             onChange={handleChange}
-            required
-          />
+            required />
+          
         </label>
 
         <label>
@@ -59,14 +59,14 @@ export function ChangePasswordPage() {
             name="password"
             value={form.password}
             onChange={handleChange}
-            required
-          />
+            required />
+          
         </label>
 
         <button type="submit" disabled={loading}>
           {loading ? "Updating..." : "Change password"}
         </button>
       </form>
-    </AuthCard>
-  );
+    </AuthCard>);
+
 }

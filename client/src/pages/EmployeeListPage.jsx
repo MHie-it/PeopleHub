@@ -62,20 +62,20 @@ export function EmployeeListPage() {
         title="Employees"
         subtitle="Data source: GET /employees"
         actions={
-          canCreateOrDeleteEmployee(user) ? (
-            <Link className="button-like" to="/employees/new">
+        canCreateOrDeleteEmployee(user) ?
+        <Link className="button-like" to="/employees/new">
               Create employee
-            </Link>
-          ) : null
-        }
-      />
+            </Link> :
+        null
+        } />
+      
 
       <DataState
         loading={loading}
         error={error}
         empty={!loading && !error && employees.length === 0}
-        emptyMessage="No employee records returned from backend."
-      >
+        emptyMessage="No employee records returned from backend.">
+        
         <div className="table-scroll">
           <table>
             <thead>
@@ -90,8 +90,8 @@ export function EmployeeListPage() {
               </tr>
             </thead>
             <tbody>
-              {employees.map((employee) => (
-                <tr key={employee._id}>
+              {employees.map((employee) =>
+              <tr key={employee._id}>
                   <td>{employee.employeeCode}</td>
                   <td>{employee.fullName}</td>
                   <td>{employee.department?.name || "-"}</td>
@@ -101,23 +101,23 @@ export function EmployeeListPage() {
                   <td className="actions-inline">
                     <Link to={`/employees/${employee._id}`}>View</Link>
                     <Link to={`/employees/${employee._id}/edit`}>Edit</Link>
-                    {canCreateOrDeleteEmployee(user) ? (
-                      <button
-                        type="button"
-                        className="link-danger"
-                        disabled={deletingId === employee._id}
-                        onClick={() => handleDelete(employee._id)}
-                      >
+                    {canCreateOrDeleteEmployee(user) ?
+                  <button
+                    type="button"
+                    className="link-danger"
+                    disabled={deletingId === employee._id}
+                    onClick={() => handleDelete(employee._id)}>
+                    
                         {deletingId === employee._id ? "Deleting..." : "Delete"}
-                      </button>
-                    ) : null}
+                      </button> :
+                  null}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </DataState>
-    </section>
-  );
+    </section>);
+
 }

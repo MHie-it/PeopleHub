@@ -6,7 +6,7 @@ export function AuthCard({
   error,
   success,
   children,
-  links = [],
+  links = []
 }) {
   return (
     <div className="auth-wrapper">
@@ -20,16 +20,16 @@ export function AuthCard({
 
         {children}
 
-        {links.length > 0 ? (
-          <div className="auth-links">
-            {links.map((link) => (
-              <Link key={link.to} to={link.to}>
+        {links.length > 0 ?
+        <div className="auth-links">
+            {links.map((link) =>
+          <Link key={link.to} to={link.to}>
                 {link.label}
               </Link>
-            ))}
-          </div>
-        ) : null}
+          )}
+          </div> :
+        null}
       </div>
-    </div>
-  );
+    </div>);
+
 }

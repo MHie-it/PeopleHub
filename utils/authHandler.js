@@ -32,8 +32,8 @@ module.exports = {
                 if (!req.user || req.user.length === 0) {
                     return res.status(403).send({ message: "ban chua dang nhap" });
                 }
-                
-                let userRole = req.user[0].role;
+
+                                let userRole = req.user[0].role;
                 if (!userRole || !roles.includes(userRole.name)) {
                     return res.status(403).send({ message: "ban khong co quyen truy cap" });
                 }
