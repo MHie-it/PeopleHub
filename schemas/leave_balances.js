@@ -45,4 +45,6 @@ const leaveBalanceSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+leaveBalanceSchema.index({ employee: 1, year: 1, leaveType: 1 }, { unique: true });
+
 module.exports = mongoose.model("leave_balances", leaveBalanceSchema);
