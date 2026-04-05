@@ -1,55 +1,84 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-let dotenv = require('dotenv');
+var createError = require("http-errors");
+var express = require("express");
+var path = require("path");
+var cookieParser = require("cookie-parser");
+var logger = require("morgan");
+var cors = require("cors");
+let dotenv = require("dotenv");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var authRouter = require('./routes/auth');
-var employeeRouter = require('./routes/employee');
-var roleRouter = require('./routes/role');
-const { connect } = require('http2');
+
+var usersRouter = require("./routes/users");
+var authRouter = require("./routes/auth");
+var roleRouter = require("./routes/role");
+var attendanceRouter = require("./routes/attendance");
+var departmentRouter = require("./routes/department");
+var employeesRouter = require("./routes/employees");
+var positionRouter = require("./routes/positions");
+var notifiRouter = require("./routes/notifi");
+var payrollsRouter = require("./routes/payrolls");
+var leavesRouter = require("./routes/leaves");
+var salaryRouter = require("./routes/salary");
+var uploadRouter = require("./routes/upload");
+var contractsRouter = require("./routes/contracts");
 
 var app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
+
+app.use(logger("dev"));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
-app.use('/auth', authRouter);
-app.use('/employee', employeeRouter);
-app.use('/role', roleRouter);
+app.use("/users", usersRouter);
 
-// Connect to MongoDB
+app.use("/auth", authRouter);
+app.use("/role", roleRouter);
+app.use("/departments", departmentRouter);
+app.use("/employees", employeesRouter);
+app.use("/positions", positionRouter);
+app.use("/attendance", attendanceRouter);
+app.use("/notifi", notifiRouter);
+app.use("/payrolls", payrollsRouter);
+app.use("/leaves", leavesRouter);
+app.use("/salary", salaryRouter);
+app.use("/upload", uploadRouter);
+app.use("/contracts", contractsRouter);
+
+
 dotenv.config();
-let connectDB = require('./config/db');
+let connectDB = require("./config/db");
 connectDB();
 
-// catch 404 and forward to error handler
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+
 app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+app.use(function (err, req, res, next) {
+
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+
   res.status(err.status || 500);
-  res.render('error');
+  res.sendFile(path.join(__dirname, "views", "error.html"));
 });
 
 module.exports = app;

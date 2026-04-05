@@ -56,13 +56,13 @@ module.exports = {
         }
     },
     ForgotPassword: async function (email) {
-        // Find user by email
+
         let user = await userModel.findOne({ email: email, isDeleted: false });
         if (!user) {
             return { message: "Email not found" };
         }
-        // In a real application, we would generate a token mapping to this user 
-        // and send an email with the link. For now, we return a success message.
+
+
         return { message: "If the email is registered, a reset link will be sent." };
     },
     ChangePassword: async function (email, newPassword) {
