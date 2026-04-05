@@ -3,7 +3,7 @@ const router = express.Router();
 const positionController = require("../controllers/positions");
 const { CheckLogin, CheckRole } = require("../utils/authHandler");
 
-const positionRoles = ["admin", "HR", "Manager"];
+const positionRoles = ["admin", "Admin", "HR", "Manager", "Boss", "Director"];
 
 router.get("/", CheckLogin, positionController.getPositions);
 

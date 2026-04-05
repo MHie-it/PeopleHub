@@ -3,10 +3,8 @@ import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
-import { APP_ROLES, hasRole } from "../lib/roles";
+import { canWriteDepartments } from "../lib/permissions";
 import { createDepartment, getDepartments } from "../services/departmentService";
-
-const writableRoles = [APP_ROLES.ADMIN, APP_ROLES.MANAGER];
 
 export function DepartmentsPage() {
   const { user } = useAuth();
@@ -16,7 +14,7 @@ export function DepartmentsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const canWrite = hasRole(user, writableRoles);
+  const canWrite = canWriteDepartments(user);
 
   async function loadDepartments() {
     setLoading(true);

@@ -46,7 +46,10 @@ async function applyApprovedLeaveToBalance(leaveReq) {
 }
 
 function isPrivilegedLeaveViewer(roleName) {
-    return ['HR', 'admin', 'Manager', 'Director', 'Leader', 'Boss'].includes(roleName);
+    if (!roleName) {
+        return false;
+    }
+    return ['HR', 'admin', 'Admin', 'Manager', 'Director', 'Leader', 'Boss'].includes(roleName);
 }
 
 module.exports = {
@@ -175,10 +178,27 @@ module.exports = {
 
     getAll: async (req, res) => {
         try {
-            const data = await LeaveRequest.find().populate("employee").sort({ createdAt: -1 });
+            const userId = req.user[0]._id;
+            const roleName = req.user[0].role?.name;
+            const privileged = isPrivilegedLeaveViewer(roleName);
+
+            let query = LeaveRequest.find();
+
+            if (!privileged) {
+                const employee = await Employee.findOne({ user: userId, isDeleted: false });
+                if (!employee) {
+                    return res.status(200).json({ success: true, data: [] });
+                }
+                query = query.where({ employee: employee._id });
+            }
+
+            const data = await query
+                .populate("employee", "fullName employeeCode department position")
+                .sort({ createdAt: -1 });
+
             res.status(200).json({ success: true, data });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
-    }
+    },
 };

@@ -4,7 +4,8 @@ import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { toDateInputValue } from "../lib/formatters";
-import { APP_ROLES, hasRole } from "../lib/roles";
+import { canCreateOrDeleteEmployee, canEditEmployeeRecord } from "../lib/permissions";
+import { APP_ROLES, getRoleName } from "../lib/roles";
 import { getDepartments } from "../services/departmentService";
 import {
   createEmployee,
@@ -14,8 +15,6 @@ import {
 } from "../services/employeeService";
 import { getPositions } from "../services/positionService";
 import { getRoles } from "../services/roleService";
-
-const allowedRoles = [APP_ROLES.ADMIN, APP_ROLES.HR, APP_ROLES.MANAGER];
 
 const initialForm = {
   username: "",
@@ -72,7 +71,8 @@ export function EmployeeFormPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const hasPermission = hasRole(user, allowedRoles);
+  const mayUseForm = isEditMode ? canEditEmployeeRecord(user) : canCreateOrDeleteEmployee(user);
+  const leaderDeptScopedEdit = isEditMode && getRoleName(user) === APP_ROLES.LEADER;
 
   useEffect(() => {
     let active = true;
@@ -81,7 +81,7 @@ export function EmployeeFormPage() {
       setLoading(true);
       setError("");
 
-      if (!hasPermission) {
+      if (!mayUseForm) {
         setLoading(false);
         setError("You do not have permission for employee create/update.");
         return;
@@ -144,7 +144,7 @@ export function EmployeeFormPage() {
     return () => {
       active = false;
     };
-  }, [id, isEditMode, hasPermission]);
+  }, [id, isEditMode, mayUseForm]);
 
   const managerOptions = useMemo(() => {
     return meta.managers.filter((manager) => manager._id !== id);
@@ -185,23 +185,32 @@ export function EmployeeFormPage() {
           : position?.department;
 
       const department = form.department || positionDepartment || "";
-      if (!department) {
+      if (!leaderDeptScopedEdit && !department) {
         throw new Error("Department is required.");
       }
 
       if (isEditMode) {
-        const updatePayload = {
-          fullName: form.fullName,
-          dateOfBirth: form.dateOfBirth || null,
-          gender: form.gender,
-          phone: form.phone,
-          address: form.address,
-          department,
-          position: form.position,
-          manager: form.manager || null,
-          joinDate: form.joinDate,
-          employmentStatus: form.employmentStatus,
-        };
+        const updatePayload = leaderDeptScopedEdit
+          ? {
+              fullName: form.fullName,
+              dateOfBirth: form.dateOfBirth || null,
+              gender: form.gender,
+              phone: form.phone,
+              address: form.address,
+              employmentStatus: form.employmentStatus,
+            }
+          : {
+              fullName: form.fullName,
+              dateOfBirth: form.dateOfBirth || null,
+              gender: form.gender,
+              phone: form.phone,
+              address: form.address,
+              department,
+              position: form.position,
+              manager: form.manager || null,
+              joinDate: form.joinDate,
+              employmentStatus: form.employmentStatus,
+            };
 
         await updateEmployee(id, updatePayload);
         setSuccess("Employee profile updated successfully.");
@@ -254,7 +263,7 @@ export function EmployeeFormPage() {
       {error ? <p className="status-note error">{error}</p> : null}
       {success ? <p className="status-note success">{success}</p> : null}
 
-      {!loading && hasPermission ? (
+      {!loading && mayUseForm ? (
         <form className="form-grid" onSubmit={handleSubmit}>
           {!isEditMode ? (
             <>
@@ -327,56 +336,65 @@ export function EmployeeFormPage() {
             <input name="address" value={form.address} onChange={handleChange} />
           </label>
 
-          <label>
-            Position
-            <select name="position" value={form.position} onChange={handleChange} required>
-              <option value="">Select position</option>
-              {meta.positions.map((position) => (
-                <option key={position._id} value={position._id}>
-                  {position.title}
-                </option>
-              ))}
-            </select>
-          </label>
+          {!leaderDeptScopedEdit ? (
+            <>
+              <label>
+                Position
+                <select name="position" value={form.position} onChange={handleChange} required>
+                  <option value="">Select position</option>
+                  {meta.positions.map((position) => (
+                    <option key={position._id} value={position._id}>
+                      {position.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          <label>
-            Department
-            {meta.departments.length > 0 ? (
-              <select name="department" value={form.department} onChange={handleChange} required>
-                <option value="">Select department</option>
-                {meta.departments.map((department) => (
-                  <option key={department._id} value={department._id}>
-                    {department.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                name="department"
-                value={form.department}
-                onChange={handleChange}
-                placeholder="Department ObjectId"
-                required
-              />
-            )}
-          </label>
+              <label>
+                Department
+                {meta.departments.length > 0 ? (
+                  <select name="department" value={form.department} onChange={handleChange} required>
+                    <option value="">Select department</option>
+                    {meta.departments.map((department) => (
+                      <option key={department._id} value={department._id}>
+                        {department.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    name="department"
+                    value={form.department}
+                    onChange={handleChange}
+                    placeholder="Department ObjectId"
+                    required
+                  />
+                )}
+              </label>
 
-          <label>
-            Manager
-            <select name="manager" value={form.manager} onChange={handleChange}>
-              <option value="">No manager</option>
-              {managerOptions.map((manager) => (
-                <option key={manager._id} value={manager._id}>
-                  {manager.fullName} ({manager.employeeCode})
-                </option>
-              ))}
-            </select>
-          </label>
+              <label>
+                Manager
+                <select name="manager" value={form.manager} onChange={handleChange}>
+                  <option value="">No manager</option>
+                  {managerOptions.map((manager) => (
+                    <option key={manager._id} value={manager._id}>
+                      {manager.fullName} ({manager.employeeCode})
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          <label>
-            Join date
-            <input type="date" name="joinDate" value={form.joinDate} onChange={handleChange} required />
-          </label>
+              <label>
+                Join date
+                <input type="date" name="joinDate" value={form.joinDate} onChange={handleChange} required />
+              </label>
+            </>
+          ) : (
+            <p className="status-note full-width">
+              As a leader you can update personal and employment status fields for employees in your department
+              only. Position, department, manager, and join date are managed by HR.
+            </p>
+          )}
 
           {isEditMode ? (
             <label>

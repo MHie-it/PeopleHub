@@ -1,8 +1,20 @@
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
-import { PublicOnly, RequireAuth } from "./components/RouteGuards";
-import { ApiUnavailablePage } from "./pages/ApiUnavailablePage";
+import { PublicOnly, RequireAuth, RequirePermission } from "./components/RouteGuards";
+import {
+  canAccessContracts,
+  canAccessDepartments,
+  canAccessEmployees,
+  canAccessNotifications,
+  canAccessPayroll,
+  canAccessPositions,
+  canCreateOrDeleteEmployee,
+  canEditEmployeeRecord,
+  canUseAttendance,
+  canViewRoles,
+} from "./lib/permissions";
 import { AttendancePage } from "./pages/AttendancePage";
+import { ContractsPage } from "./pages/ContractsPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DepartmentsPage } from "./pages/DepartmentsPage";
 import { EmployeeDetailPage } from "./pages/EmployeeDetailPage";
@@ -13,6 +25,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { PayrollPage } from "./pages/PayrollPage";
 import { PositionsPage } from "./pages/PositionsPage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { RolesPage } from "./pages/RolesPage";
 import { SalaryPage } from "./pages/SalaryPage";
 import { ChangePasswordPage } from "./pages/auth/ChangePasswordPage";
@@ -65,20 +78,97 @@ function App() {
         }
       >
         <Route index element={<DashboardPage />} />
-        <Route path="employees" element={<EmployeeListPage />} />
-        <Route path="employees/new" element={<EmployeeFormPage />} />
-        <Route path="employees/:id" element={<EmployeeDetailPage />} />
-        <Route path="employees/:id/edit" element={<EmployeeFormPage />} />
-        <Route path="departments" element={<DepartmentsPage />} />
-        <Route path="positions" element={<PositionsPage />} />
-        <Route path="roles" element={<RolesPage />} />
-        <Route path="attendance" element={<AttendancePage />} />
+        <Route
+          path="employees"
+          element={
+            <RequirePermission check={canAccessEmployees}>
+              <EmployeeListPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="employees/new"
+          element={
+            <RequirePermission check={canCreateOrDeleteEmployee}>
+              <EmployeeFormPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="employees/:id"
+          element={
+            <RequirePermission check={canAccessEmployees}>
+              <EmployeeDetailPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="employees/:id/edit"
+          element={
+            <RequirePermission check={canEditEmployeeRecord}>
+              <EmployeeFormPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="departments"
+          element={
+            <RequirePermission check={canAccessDepartments}>
+              <DepartmentsPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="positions"
+          element={
+            <RequirePermission check={canAccessPositions}>
+              <PositionsPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="roles"
+          element={
+            <RequirePermission check={canViewRoles}>
+              <RolesPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="attendance"
+          element={
+            <RequirePermission check={canUseAttendance}>
+              <AttendancePage />
+            </RequirePermission>
+          }
+        />
         <Route path="leave" element={<LeavesPage />} />
-        <Route path="payroll" element={<PayrollPage />} />
+        <Route
+          path="payroll"
+          element={
+            <RequirePermission check={canAccessPayroll}>
+              <PayrollPage />
+            </RequirePermission>
+          }
+        />
         <Route path="salary" element={<SalaryPage />} />
-        <Route path="notifications" element={<NotificationsPage />} />
-
-        <Route path="contracts" element={<ApiUnavailablePage />} />
+        <Route
+          path="notifications"
+          element={
+            <RequirePermission check={canAccessNotifications}>
+              <NotificationsPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="contracts"
+          element={
+            <RequirePermission check={canAccessContracts}>
+              <ContractsPage />
+            </RequirePermission>
+          }
+        />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

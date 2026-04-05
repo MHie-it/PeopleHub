@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { PageHeader } from "../components/PageHeader";
+import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
+import {
+  canAccessDepartments,
+  canAccessEmployees,
+  canAccessPositions,
+  canViewRoles,
+} from "../lib/permissions";
 import { getEmployees } from "../services/employeeService";
 import { getDepartments } from "../services/departmentService";
 import { getPositions } from "../services/positionService";
 import { getRoles } from "../services/roleService";
-import { useAuth } from "../hooks/useAuth";
 
 function countFromPayload(payload) {
   if (Array.isArray(payload)) {
@@ -37,24 +43,61 @@ export function DashboardPage() {
       setLoading(true);
       setError("");
 
-      try {
-        const [employeesRes, departmentsRes, positionsRes, rolesRes] = await Promise.allSettled([
-          getEmployees(),
-          getDepartments(),
-          getPositions(),
-          getRoles(),
-        ]);
+      const tasks = [];
 
+      if (canAccessEmployees(user)) {
+        tasks.push(
+          getEmployees()
+            .then((value) => ({ key: "employees", value }))
+            .catch(() => ({ key: "employees", value: null })),
+        );
+      }
+
+      if (canAccessDepartments(user)) {
+        tasks.push(
+          getDepartments()
+            .then((value) => ({ key: "departments", value }))
+            .catch(() => ({ key: "departments", value: null })),
+        );
+      }
+
+      if (canAccessPositions(user)) {
+        tasks.push(
+          getPositions()
+            .then((value) => ({ key: "positions", value }))
+            .catch(() => ({ key: "positions", value: null })),
+        );
+      }
+
+      if (canViewRoles(user)) {
+        tasks.push(
+          getRoles()
+            .then((value) => ({ key: "roles", value }))
+            .catch(() => ({ key: "roles", value: null })),
+        );
+      }
+
+      try {
+        const results = tasks.length > 0 ? await Promise.all(tasks) : [];
         if (!active) {
           return;
         }
 
-        setStats({
-          employees: employeesRes.status === "fulfilled" ? countFromPayload(employeesRes.value) : null,
-          departments: departmentsRes.status === "fulfilled" ? countFromPayload(departmentsRes.value) : null,
-          positions: positionsRes.status === "fulfilled" ? countFromPayload(positionsRes.value) : null,
-          roles: rolesRes.status === "fulfilled" ? countFromPayload(rolesRes.value) : null,
+        const next = {
+          employees: null,
+          departments: null,
+          positions: null,
+          roles: null,
+        };
+
+        results.forEach((entry) => {
+          if (!entry) {
+            return;
+          }
+          next[entry.key] = entry.value === null ? null : countFromPayload(entry.value);
         });
+
+        setStats(next);
       } catch (loadError) {
         if (active) {
           setError(extractErrorMessage(loadError, "Unable to load dashboard metrics"));
@@ -71,14 +114,14 @@ export function DashboardPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [user]);
 
   const cards = [
-    { label: "Employees", value: stats.employees },
-    { label: "Departments", value: stats.departments },
-    { label: "Positions", value: stats.positions },
-    { label: "Roles", value: stats.roles },
-  ];
+    canAccessEmployees(user) ? { label: "Employees", value: stats.employees } : null,
+    canAccessDepartments(user) ? { label: "Departments", value: stats.departments } : null,
+    canAccessPositions(user) ? { label: "Positions", value: stats.positions } : null,
+    canViewRoles(user) ? { label: "Roles", value: stats.roles } : null,
+  ].filter(Boolean);
 
   return (
     <section className="page-card">
@@ -103,14 +146,18 @@ export function DashboardPage() {
 
       {error ? <p className="status-note error">{error}</p> : null}
 
-      <div className="metric-grid">
-        {cards.map((card) => (
-          <article key={card.label} className="metric-card">
-            <p>{card.label}</p>
-            <h3>{loading ? "..." : card.value ?? "N/A"}</h3>
-          </article>
-        ))}
-      </div>
+      {cards.length === 0 ? (
+        <p className="status-note">No directory metrics are available for your role on this screen.</p>
+      ) : (
+        <div className="metric-grid">
+          {cards.map((card) => (
+            <article key={card.label} className="metric-card">
+              <p>{card.label}</p>
+              <h3>{loading ? "..." : card.value ?? "N/A"}</h3>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

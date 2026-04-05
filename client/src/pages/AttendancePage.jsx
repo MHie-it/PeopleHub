@@ -4,17 +4,14 @@ import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { formatDateTime } from "../lib/formatters";
-import { APP_ROLES, hasRole } from "../lib/roles";
+import { attendanceNeedsEmployeePicker, canUseAttendance as userCanUseAttendance } from "../lib/permissions";
 import { checkIn, checkOut } from "../services/attendanceService";
 import { getEmployees } from "../services/employeeService";
 
-const allowedRoles = [APP_ROLES.ADMIN, APP_ROLES.MANAGER, APP_ROLES.EMPLOYEE];
-
 export function AttendancePage() {
   const { user } = useAuth();
-  const roleName = user?.role?.name;
-  const canUseAttendance = hasRole(user, allowedRoles);
-  const needsEmployeePick = roleName === APP_ROLES.ADMIN || roleName === APP_ROLES.MANAGER;
+  const canUseAttendance = userCanUseAttendance(user);
+  const needsEmployeePick = attendanceNeedsEmployeePicker(user);
 
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");

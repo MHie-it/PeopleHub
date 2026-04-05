@@ -3,11 +3,9 @@ import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
-import { APP_ROLES, hasRole } from "../lib/roles";
+import { canWritePositions } from "../lib/permissions";
 import { getDepartments } from "../services/departmentService";
 import { createPosition, getPositions } from "../services/positionService";
-
-const writableRoles = [APP_ROLES.ADMIN, APP_ROLES.HR, APP_ROLES.MANAGER];
 
 function deriveDepartmentsFromPositions(positions) {
   const map = new Map();
@@ -28,7 +26,7 @@ function deriveDepartmentsFromPositions(positions) {
 
 export function PositionsPage() {
   const { user } = useAuth();
-  const canWrite = hasRole(user, writableRoles);
+  const canWrite = canWritePositions(user);
 
   const [positions, setPositions] = useState([]);
   const [departments, setDepartments] = useState([]);

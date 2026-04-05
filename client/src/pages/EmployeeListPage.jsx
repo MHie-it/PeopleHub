@@ -5,10 +5,8 @@ import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { formatDate } from "../lib/formatters";
-import { APP_ROLES, hasRole } from "../lib/roles";
+import { canAccessEmployees, canCreateOrDeleteEmployee } from "../lib/permissions";
 import { deleteEmployee, getEmployees } from "../services/employeeService";
-
-const allowedRoles = [APP_ROLES.ADMIN, APP_ROLES.HR, APP_ROLES.MANAGER];
 
 export function EmployeeListPage() {
   const { user } = useAuth();
@@ -32,7 +30,7 @@ export function EmployeeListPage() {
   }
 
   useEffect(() => {
-    if (!hasRole(user, allowedRoles)) {
+    if (!canAccessEmployees(user)) {
       setLoading(false);
       setError("You do not have permission to access /employees.");
       return;
@@ -64,7 +62,7 @@ export function EmployeeListPage() {
         title="Employees"
         subtitle="Data source: GET /employees"
         actions={
-          hasRole(user, allowedRoles) ? (
+          canCreateOrDeleteEmployee(user) ? (
             <Link className="button-like" to="/employees/new">
               Create employee
             </Link>
@@ -103,14 +101,16 @@ export function EmployeeListPage() {
                   <td className="actions-inline">
                     <Link to={`/employees/${employee._id}`}>View</Link>
                     <Link to={`/employees/${employee._id}/edit`}>Edit</Link>
-                    <button
-                      type="button"
-                      className="link-danger"
-                      disabled={deletingId === employee._id}
-                      onClick={() => handleDelete(employee._id)}
-                    >
-                      {deletingId === employee._id ? "Deleting..." : "Delete"}
-                    </button>
+                    {canCreateOrDeleteEmployee(user) ? (
+                      <button
+                        type="button"
+                        className="link-danger"
+                        disabled={deletingId === employee._id}
+                        onClick={() => handleDelete(employee._id)}
+                      >
+                        {deletingId === employee._id ? "Deleting..." : "Delete"}
+                      </button>
+                    ) : null}
                   </td>
                 </tr>
               ))}

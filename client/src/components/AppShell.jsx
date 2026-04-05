@@ -1,43 +1,37 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { APP_ROLES, hasRole } from "../lib/roles";
+import {
+  canAccessContracts,
+  canAccessDepartments,
+  canAccessEmployees,
+  canAccessNotifications,
+  canAccessPayroll,
+  canAccessPositions,
+  canUseAttendance,
+  canViewRoles,
+} from "../lib/permissions";
 
 const primaryNavItems = [
-  { to: "/", label: "Overview" },
-  {
-    to: "/employees",
-    label: "Employees",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.HR, APP_ROLES.MANAGER],
-  },
-  {
-    to: "/departments",
-    label: "Departments",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.MANAGER],
-  },
-  { to: "/positions", label: "Positions" },
-  { to: "/roles", label: "Roles" },
-  {
-    to: "/attendance",
-    label: "Attendance",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.MANAGER, APP_ROLES.EMPLOYEE],
-  },
+  { to: "/employees", label: "Employees", check: canAccessEmployees },
+  { to: "/departments", label: "Departments", check: canAccessDepartments },
+  { to: "/positions", label: "Positions", check: canAccessPositions },
+  { to: "/roles", label: "Roles", check: canViewRoles },
+  { to: "/attendance", label: "Attendance", check: canUseAttendance },
   { to: "/leave", label: "Leave" },
-  {
-    to: "/payroll",
-    label: "Payroll",
-    roles: [APP_ROLES.ADMIN, APP_ROLES.ADMIN_UPPER, APP_ROLES.HR, APP_ROLES.DIRECTOR, APP_ROLES.BOSS],
-  },
+  { to: "/payroll", label: "Payroll", check: canAccessPayroll },
   { to: "/salary", label: "Salary" },
-  { to: "/notifications", label: "Notifications" },
+  { to: "/notifications", label: "Notifications", check: canAccessNotifications },
+  { to: "/contracts", label: "Contracts", check: canAccessContracts },
+  { to: "/profile", label: "Profile" },
 ];
 
-const unavailableItems = [{ to: "/contracts", label: "Contracts" }];
+const unavailableItems = [];
 
 function canDisplayItem(user, item) {
-  if (!item.roles) {
+  if (!item.check) {
     return true;
   }
-  return hasRole(user, item.roles);
+  return item.check(user);
 }
 
 export function AppShell() {
@@ -49,7 +43,6 @@ export function AppShell() {
         <div className="brand-block">
           <p className="brand-kicker">PeopleHub</p>
           <h1>Command Center</h1>
-          <p>React frontend wired directly to your existing backend APIs.</p>
         </div>
 
         <nav className="nav-group" aria-label="Primary navigation">
@@ -63,14 +56,16 @@ export function AppShell() {
             ))}
         </nav>
 
-        <nav className="nav-group" aria-label="Unavailable API modules">
-          <p className="nav-title">Pending APIs</p>
-          {unavailableItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className="nav-link muted">
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        {unavailableItems.length > 0 ? (
+          <nav className="nav-group" aria-label="Unavailable API modules">
+            <p className="nav-title">Pending APIs</p>
+            {unavailableItems.map((item) => (
+              <NavLink key={item.to} to={item.to} className="nav-link muted">
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        ) : null}
       </aside>
 
       <section className="app-main">
@@ -81,6 +76,9 @@ export function AppShell() {
           </div>
 
           <div className="topbar-actions">
+            <NavLink to="/profile" className="ghost-button">
+              Profile
+            </NavLink>
             <span className="role-chip">{user?.role?.name || "No role"}</span>
             <button type="button" className="ghost-button" onClick={logout}>
               Logout

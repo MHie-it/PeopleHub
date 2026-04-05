@@ -66,6 +66,25 @@ const contractController = {
         }
     },
 
+    getMyContracts: async (req, res) => {
+        try {
+            const userId = req.user[0]._id;
+            const employee = await Employee.findOne({ user: userId, isDeleted: false }).select("_id");
+            if (!employee) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy hồ sơ nhân viên liên kết với tài khoản",
+                });
+            }
+            const list = await Contract.find({ employee: employee._id, isDeleted: false })
+                .sort({ startDate: -1 })
+                .populate("employee", "fullName employeeCode department position");
+            res.status(200).json({ success: true, data: list });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
     createContract: async (req, res) => {
         try {
             const {

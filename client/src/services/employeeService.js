@@ -5,6 +5,11 @@ export async function getMyEmployeeProfile() {
   return response.data;
 }
 
+export async function updateMyEmployeeProfile(payload) {
+  const response = await apiClient.put("/employees/me", payload);
+  return response.data;
+}
+
 export async function getEmployees() {
   const response = await apiClient.get("/employees");
   return response.data;

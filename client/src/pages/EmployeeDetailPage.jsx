@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
+import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { formatDate, formatDateTime } from "../lib/formatters";
+import { canEditEmployeeRecord } from "../lib/permissions";
 import { getEmployeeById } from "../services/employeeService";
 
 export function EmployeeDetailPage() {
+  const { user } = useAuth();
   const { id } = useParams();
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -49,9 +52,11 @@ export function EmployeeDetailPage() {
         actions={
           <div className="actions-inline">
             <Link to="/employees">Back</Link>
-            <Link className="button-like" to={`/employees/${id}/edit`}>
-              Edit
-            </Link>
+            {canEditEmployeeRecord(user) ? (
+              <Link className="button-like" to={`/employees/${id}/edit`}>
+                Edit
+              </Link>
+            ) : null}
           </div>
         }
       />

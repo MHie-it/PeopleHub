@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
+import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
+import { canMutateRoles } from "../lib/permissions";
 import { createRole, deleteRole, getRoles, updateRole } from "../services/roleService";
 
 const roleOptions = ["admin", "HR", "Manager", "Employee"];
 
 export function RolesPage() {
+  const { user } = useAuth();
+  const canEdit = canMutateRoles(user);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -96,29 +100,38 @@ export function RolesPage() {
 
   return (
     <section className="page-card">
-      <PageHeader title="Roles" subtitle="Data source: /role" />
+      <PageHeader
+        title="Roles"
+        subtitle={
+          canEdit
+            ? "Data source: /role (admin: full CRUD)"
+            : "View only: Boss/HR cannot add, edit, or delete roles on this UI."
+        }
+      />
 
-      <form className="form-grid" onSubmit={handleCreateSubmit}>
-        <label>
-          Role name
-          <select name="name" value={form.name} onChange={handleCreateChange}>
-            {roleOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
+      {canEdit ? (
+        <form className="form-grid" onSubmit={handleCreateSubmit}>
+          <label>
+            Role name
+            <select name="name" value={form.name} onChange={handleCreateChange}>
+              {roleOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="full-width">
-          Description
-          <input name="description" value={form.description} onChange={handleCreateChange} />
-        </label>
+          <label className="full-width">
+            Description
+            <input name="description" value={form.description} onChange={handleCreateChange} />
+          </label>
 
-        <div className="full-width actions-inline">
-          <button type="submit">Create role</button>
-        </div>
-      </form>
+          <div className="full-width actions-inline">
+            <button type="submit">Create role</button>
+          </div>
+        </form>
+      ) : null}
 
       {error ? <p className="status-note error">{error}</p> : null}
 
@@ -165,7 +178,9 @@ export function RolesPage() {
                     )}
                   </td>
                   <td className="actions-inline">
-                    {editingId === role._id ? (
+                    {!canEdit ? (
+                      <span className="status-note">—</span>
+                    ) : editingId === role._id ? (
                       <>
                         <button type="button" onClick={(event) => handleEditSubmit(event, role._id)}>
                           Save

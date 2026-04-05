@@ -3,6 +3,22 @@ const Role = require('../schemas/roles');
 const Employee = require('../schemas/employees');
 const mongoose = require('mongoose');
 
+async function getDepartmentIdForUser(userId) {
+    const emp = await Employee.findOne({ user: userId, isDeleted: false }).select('department');
+    return emp?.department || null;
+}
+
+function pickLeaderEmployeeFields(body) {
+    const allowed = ['fullName', 'dateOfBirth', 'gender', 'phone', 'address', 'employmentStatus'];
+    const out = {};
+    for (const key of allowed) {
+        if (body[key] !== undefined) {
+            out[key] = body[key];
+        }
+    }
+    return out;
+}
+
 module.exports.getMyProfile = async (req, res) => {
     try {
         const currentUserId = req.user[0]._id;
@@ -28,7 +44,18 @@ module.exports.getMyProfile = async (req, res) => {
 
 module.exports.getAllEmployees = async (req, res) => {
     try {
-        const employees = await Employee.find({ isDeleted: false })
+        const roleName = req.user[0].role?.name;
+        const filter = { isDeleted: false };
+
+        if (roleName === 'Leader') {
+            const deptId = await getDepartmentIdForUser(req.user[0]._id);
+            if (!deptId) {
+                return res.status(200).json({ success: true, data: [] });
+            }
+            filter.department = deptId;
+        }
+
+        const employees = await Employee.find(filter)
             .populate('user', '-password')
             .populate('department', 'name code')
             .populate('position', 'title level')
@@ -61,9 +88,89 @@ module.exports.getEmployeeById = async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy nhân viên" });
         }
 
+        if (req.user[0].role?.name === 'Leader') {
+            const myDept = await getDepartmentIdForUser(req.user[0]._id);
+            if (!myDept || String(employee.department?._id || employee.department) !== String(myDept)) {
+                return res.status(403).json({ success: false, message: "Không có quyền xem nhân viên ngoài phòng ban" });
+            }
+        }
+
         return res.status(200).json({
             success: true,
             data: employee
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
+    }
+};
+
+module.exports.updateMyProfile = async (req, res) => {
+    try {
+        const userId = req.user[0]._id;
+        const body = req.body || {};
+
+        const employee = await Employee.findOne({ user: userId, isDeleted: false });
+        if (!employee) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy hồ sơ nhân sự" });
+        }
+
+        const userUpdate = {};
+        if (body.email !== undefined && body.email !== '') {
+            userUpdate.email = String(body.email).toLowerCase().trim();
+        }
+        if (body.fullName !== undefined && body.fullName !== '') {
+            userUpdate.fullName = body.fullName;
+        }
+
+        if (Object.keys(userUpdate).length > 0) {
+            try {
+                await User.findByIdAndUpdate(userId, userUpdate, { new: true, runValidators: true });
+            } catch (err) {
+                if (err.code === 11000) {
+                    return res.status(400).json({ success: false, message: "Email đã được sử dụng" });
+                }
+                throw err;
+            }
+        }
+
+        const empUpdate = {};
+        if (body.fullName !== undefined) {
+            empUpdate.fullName = body.fullName;
+        }
+        if (body.phone !== undefined) {
+            empUpdate.phone = body.phone;
+        }
+        if (body.address !== undefined) {
+            empUpdate.address = body.address;
+        }
+        if (body.gender !== undefined) {
+            empUpdate.gender = body.gender;
+        }
+        if (body.dateOfBirth !== undefined) {
+            empUpdate.dateOfBirth = body.dateOfBirth || null;
+        }
+
+        let updatedEmployee;
+        if (Object.keys(empUpdate).length > 0) {
+            updatedEmployee = await Employee.findOneAndUpdate(
+                { _id: employee._id, isDeleted: false },
+                empUpdate,
+                { new: true, runValidators: true },
+            )
+                .populate('user', '-password')
+                .populate('department', 'name code')
+                .populate('position', 'title level');
+        } else {
+            updatedEmployee = await Employee.findOne({ _id: employee._id, isDeleted: false })
+                .populate('user', '-password')
+                .populate('department', 'name code')
+                .populate('position', 'title level');
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Cập nhật hồ sơ thành công",
+            data: updatedEmployee,
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
@@ -161,7 +268,7 @@ module.exports.createEmployee = async (req, res) => {
 module.exports.updateEmployee = async (req, res) => {
     try {
         const { id } = req.params;
-        const updateData = req.body;
+        let updateData = { ...req.body };
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ success: false, message: "ID nhân viên không hợp lệ" });
@@ -171,14 +278,35 @@ module.exports.updateEmployee = async (req, res) => {
         delete updateData.employeeCode;
         delete updateData.isDeleted;
 
+        const roleName = req.user[0].role?.name;
+        if (roleName === 'Leader') {
+            const myDept = await getDepartmentIdForUser(req.user[0]._id);
+            const target = await Employee.findOne({ _id: id, isDeleted: false }).select('department user');
+            if (!target || !myDept || String(target.department) !== String(myDept)) {
+                return res.status(403).json({ success: false, message: "Chỉ được cập nhật nhân viên cùng phòng ban" });
+            }
+            updateData = pickLeaderEmployeeFields(updateData);
+            if (Object.keys(updateData).length === 0) {
+                return res.status(400).json({ success: false, message: "Không có trường hợp lệ để cập nhật" });
+            }
+        }
+
         const updatedEmployee = await Employee.findOneAndUpdate(
             { _id: id, isDeleted: false },
             updateData,
             { new: true, runValidators: true }
-        );
+        )
+            .populate('user', '-password')
+            .populate('department', 'name code')
+            .populate('position', 'title level');
 
         if (!updatedEmployee) {
             return res.status(404).json({ success: false, message: "Không tìm thấy nhân viên" });
+        }
+
+        if (updateData.fullName && updatedEmployee.user) {
+            const uid = updatedEmployee.user._id || updatedEmployee.user;
+            await User.findByIdAndUpdate(uid, { fullName: updateData.fullName });
         }
 
         return res.status(200).json({
