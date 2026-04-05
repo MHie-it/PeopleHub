@@ -43,7 +43,32 @@ async function getDepartment(req, res) {
     return res.status(500).json({ success: false, message: "lỗi server" });
   }
 }
+
+async function updateDepartment(req, res, next) {
+  try {
+    let id = req.params.id;
+    let updateItem = await Department.findByIdAndUpdate(id, req.body,
+      { new: true });
+    return res.status(200).json({ success: true, data: updateItem });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "lỗi update" });
+  }
+}
+
+async function deleteDepartment(req, res, next) {
+  try {
+    let id = req.params.id;
+    let updateItem = await Department.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    return res.status(200).json({ success: true, data: updateItem });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "lỗi delete" });
+  }
+}
+
+
 module.exports = {
   createDepartment,
   getDepartment,
+  updateDepartment,
+  deleteDepartment,
 };

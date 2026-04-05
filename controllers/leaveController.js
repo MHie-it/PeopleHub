@@ -1,11 +1,59 @@
 const LeaveRequest = require('../schemas/leave_request');
 const Employee = require('../schemas/employees');
+const LeaveBalance = require('../schemas/leave_balances');
+
+const LEAVE_TYPES_WITH_BALANCE = ['ANNUAL', 'SICK'];
+
+async function applyApprovedLeaveToBalance(leaveReq) {
+    const year = new Date(leaveReq.fromDate).getFullYear();
+    const days = leaveReq.totalDays || 0;
+
+    if (!LEAVE_TYPES_WITH_BALANCE.includes(leaveReq.leaveType)) {
+        return { ok: true };
+    }
+    if (days <= 0) {
+        return { ok: true };
+    }
+
+    let balance = await LeaveBalance.findOne({
+        employee: leaveReq.employee,
+        year,
+        leaveType: leaveReq.leaveType,
+    });
+
+    if (!balance) {
+        balance = await LeaveBalance.create({
+            employee: leaveReq.employee,
+            year,
+            leaveType: leaveReq.leaveType,
+            allocated: 12,
+            used: 0,
+            remaining: 12,
+        });
+    }
+
+    if (balance.remaining < days) {
+        return {
+            ok: false,
+            message: `Không đủ ngày phép (${leaveReq.leaveType}): còn ${balance.remaining}, đơn xin ${days} ngày`,
+        };
+    }
+
+    balance.used += days;
+    balance.remaining = balance.allocated - balance.used;
+    await balance.save();
+    return { ok: true };
+}
+
+function isPrivilegedLeaveViewer(roleName) {
+    return ['HR', 'admin', 'Manager', 'Director', 'Leader', 'Boss'].includes(roleName);
+}
 
 module.exports = {
     createLeave: async (req, res) => {
         try {
             const userId = req.user[0]._id;
-            const employee = await Employee.findOne({ user: userId });
+            const employee = await Employee.findOne({ user: userId, isDeleted: false });
             if (!employee) return res.status(404).json({ message: "Không tìm thấy hồ sơ nhân viên" });
 
             const { leaveType, fromDate, toDate, reason } = req.body;
@@ -32,7 +80,7 @@ module.exports = {
             res.status(500).json({ success: false, message: error.message });
         }
     },
-    
+
     leaderAction: async (req, res) => {
         try {
             const { id } = req.params;
@@ -81,6 +129,10 @@ module.exports = {
             leaveReq.hrActionAt = new Date();
 
             if (action === 'APPROVE') {
+                const bal = await applyApprovedLeaveToBalance(leaveReq);
+                if (!bal.ok) {
+                    return res.status(400).json({ success: false, message: bal.message });
+                }
                 leaveReq.status = "APPROVED";
             } else {
                 leaveReq.status = "REJECTED_HR";
@@ -88,6 +140,34 @@ module.exports = {
 
             await leaveReq.save();
             res.status(200).json({ success: true, data: leaveReq });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    getApprovedLeaves: async (req, res) => {
+        try {
+            const userId = req.user[0]._id;
+            const roleName = req.user[0].role?.name;
+            const privileged = isPrivilegedLeaveViewer(roleName);
+
+            const filter = { status: 'APPROVED' };
+
+            if (privileged && req.query.employeeId) {
+                filter.employee = req.query.employeeId;
+            } else if (!privileged) {
+                const employee = await Employee.findOne({ user: userId, isDeleted: false });
+                if (!employee) {
+                    return res.status(200).json({ success: true, data: [] });
+                }
+                filter.employee = employee._id;
+            }
+
+            const data = await LeaveRequest.find(filter)
+                .populate('employee', 'fullName employeeCode department position')
+                .sort({ hrActionAt: -1, updatedAt: -1 });
+
+            res.status(200).json({ success: true, data });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

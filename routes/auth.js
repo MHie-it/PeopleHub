@@ -45,9 +45,4 @@ router.post('/change-password', ResetPasswordValidator, validatedResult, async f
     res.send(result)
 })
 
-//register
-//changepassword
-//me
-//forgotpassword
-//permission
 module.exports = router;
