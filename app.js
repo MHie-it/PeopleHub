@@ -6,7 +6,7 @@ var logger = require("morgan");
 var cors = require("cors");
 let dotenv = require("dotenv");
 
-var indexRouter = require("./routes/index");
+
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
 var roleRouter = require("./routes/role");
@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
+
 app.use("/users", usersRouter);
 
 app.use("/auth", authRouter);
@@ -56,6 +56,11 @@ app.use("/upload", uploadRouter);
 dotenv.config();
 let connectDB = require("./config/db");
 connectDB();
+
+// serve frontend for any other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
