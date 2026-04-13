@@ -10,15 +10,16 @@ import {
   createNotification,
   createGlobalNotification,
   getNotificationsByUser,
-  markNotificationRead } from
-"../services/notificationService";
+  markNotificationRead
+} from
+  "../services/notificationService";
 
 const notificationTypes = [
-"LEAVE_REQUEST_CREATED",
-"LEAVE_REQUEST_APPROVED",
-"LEAVE_REQUEST_REJECTED",
-"PAYROLL_GENERATED",
-"SYSTEM"];
+  "LEAVE_REQUEST_CREATED",
+  "LEAVE_REQUEST_APPROVED",
+  "LEAVE_REQUEST_REJECTED",
+  "PAYROLL_GENERATED",
+  "SYSTEM"];
 
 
 export function NotificationsPage() {
@@ -44,7 +45,6 @@ export function NotificationsPage() {
     setForm((previous) => ({ ...previous, receiver: userId }));
   }, [userId]);
 
-  // Lắng nghe thông báo real-time qua socket
   useEffect(() => {
     if (!socket) return;
 
@@ -175,7 +175,7 @@ export function NotificationsPage() {
         error={error}
         empty={!loading && !error && notifications.length === 0}
         emptyMessage="No notifications found for this user.">
-        
+
         <div className="table-scroll">
           <table>
             <thead>
@@ -190,7 +190,7 @@ export function NotificationsPage() {
             </thead>
             <tbody>
               {notifications.map((notification) =>
-              <tr key={notification._id}>
+                <tr key={notification._id}>
                   <td>{notification.title || "-"}</td>
                   <td>{notification.message || "-"}</td>
                   <td>{notification.type || "SYSTEM"}</td>
@@ -198,16 +198,16 @@ export function NotificationsPage() {
                   <td>{notification.isRead ? "Yes" : "No"}</td>
                   <td>
                     {!notification.isRead ?
-                  <button
-                    type="button"
-                    disabled={submitting}
-                    onClick={() => handleMarkRead(notification._id)}>
-                    
+                      <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => handleMarkRead(notification._id)}>
+
                         Mark read
                       </button> :
 
-                  "-"
-                  }
+                      "-"
+                    }
                   </td>
                 </tr>
               )}

@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect, useState } from "react";
 import {
   canAccessContracts,
   canAccessDepartments,
@@ -37,16 +38,52 @@ function canDisplayItem(user, item) {
 
 export function AppShell() {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Đóng sidebar khi navigate sang trang khác
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Chặn scroll body khi sidebar mở trên mobile
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add("sidebar-lock");
+    } else {
+      document.body.classList.remove("sidebar-lock");
+    }
+    return () => document.body.classList.remove("sidebar-lock");
+  }, [sidebarOpen]);
 
   return (
     <div className="app-shell">
-      <aside className="app-sidebar">
+      {/* Overlay backdrop cho mobile */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside className={`app-sidebar${sidebarOpen ? " is-open" : ""}`}>
+        {/* Nút đóng bên trong sidebar (mobile) */}
+        <button
+          className="sidebar-close-btn"
+          type="button"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close navigation"
+        >
+          ✕
+        </button>
+
         <div className="brand-block">
           <p className="brand-kicker">PeopleHub</p>
           <h1>Command Center</h1>
         </div>
 
-        <nav className="nav-group" aria-label="Primary navigation">
+        <nav className="nav-group nav-scrollable" aria-label="Primary navigation">
           <p className="nav-title">Operations</p>
           {primaryNavItems.
           filter((item) => canDisplayItem(user, item)).
@@ -71,7 +108,22 @@ export function AppShell() {
 
       <section className="app-main">
         <header className="topbar">
-          <div>
+          {/* Hamburger button — chỉ hiện trên mobile */}
+          <button
+            className="hamburger-btn"
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open navigation"
+            aria-expanded={sidebarOpen}
+          >
+            <span className="hamburger-icon">
+              <span />
+              <span />
+              <span />
+            </span>
+          </button>
+
+          <div className="topbar-identity">
             <p className="topbar-label">Signed in as</p>
             <p className="topbar-name">{user?.fullName || user?.username || "Unknown user"}</p>
           </div>
@@ -93,4 +145,4 @@ export function AppShell() {
       </section>
     </div>);
 
-}
+}
