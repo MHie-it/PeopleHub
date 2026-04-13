@@ -1,5 +1,6 @@
 const Notifi = require("../schemas/notifi");
 const User = require("../schemas/users");
+const { getIO } = require("../utils/socket");
 
 const notifiController = {
 
@@ -25,6 +26,12 @@ const notifiController = {
                 data: data || {}
             });
             await notifi.save();
+
+            try {
+                const io = getIO();
+                io.to(`user:${receiver}`).emit('notification', notifi);
+            } catch (_) { }
+
             res.status(201).json({ success: true, data: notifi });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
@@ -45,9 +52,21 @@ const notifiController = {
                 actor: req.user ? req.user[0]._id : null
             }));
 
-                        if (notifiDocs.length > 0) {
+            if (notifiDocs.length > 0) {
                 await Notifi.insertMany(notifiDocs);
             }
+
+            try {
+                const io = getIO();
+                const broadcastPayload = { title, message, type: type || "SYSTEM", data: data || {} };
+                users.forEach((user) => {
+                    io.to(`user:${user._id}`).emit('notification', {
+                        ...broadcastPayload,
+                        receiver: user._id,
+                    });
+                });
+            } catch (_) { }
+
             res.status(201).json({ success: true, count: notifiDocs.length, message: "Notifications broadcasted" });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
@@ -62,9 +81,9 @@ const notifiController = {
                 readAt: new Date()
             }, { new: true });
 
-                        if (!notifi) return res.status(404).json({ success: false, message: "Notification not found" });
+            if (!notifi) return res.status(404).json({ success: false, message: "Notification not found" });
 
-                        res.status(200).json({ success: true, data: notifi });
+            res.status(200).json({ success: true, data: notifi });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
+import { useSocket } from "../context/SocketContext";
 import { extractErrorMessage } from "../lib/errors";
 import { formatDateTime } from "../lib/formatters";
 import { APP_ROLES, hasRole } from "../lib/roles";
@@ -22,6 +23,7 @@ const notificationTypes = [
 
 export function NotificationsPage() {
   const { user } = useAuth();
+  const socket = useSocket();
   const userId = user?._id || "";
 
   const [notifications, setNotifications] = useState([]);
@@ -41,6 +43,20 @@ export function NotificationsPage() {
   useEffect(() => {
     setForm((previous) => ({ ...previous, receiver: userId }));
   }, [userId]);
+
+  // Lắng nghe thông báo real-time qua socket
+  useEffect(() => {
+    if (!socket) return;
+
+    function handleNewNotification(notifi) {
+      setNotifications((prev) => [notifi, ...prev]);
+    }
+
+    socket.on("notification", handleNewNotification);
+    return () => {
+      socket.off("notification", handleNewNotification);
+    };
+  }, [socket]);
 
   async function loadNotifications() {
     if (!userId) {
