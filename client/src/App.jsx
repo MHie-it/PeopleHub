@@ -29,6 +29,7 @@ import { PositionsPage } from "./pages/PositionsPage";
 import { RolesPage } from "./pages/RolesPage";
 import { SalaryPage } from "./pages/SalaryPage";
 import { UsersPage } from "./pages/UsersPage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { ChangePasswordPage } from "./pages/auth/ChangePasswordPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
@@ -177,6 +178,7 @@ function App() {
             </RequirePermission>
           }
         />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
