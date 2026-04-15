@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
@@ -68,9 +69,10 @@ function ContractDocumentIcon() {
   );
 }
 
-export function ContractsPage() {
+export function ContractsPage({ showAll = false }) {
   const { user } = useAuth();
   const isPrivileged = canViewAll(user);
+  const displayAll = showAll && isPrivileged;
 
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +91,7 @@ export function ContractsPage() {
       setLoading(true);
       setError("");
       try {
-        const payload = isPrivileged ? await getAllContracts() : await getMyContracts();
+        const payload = displayAll ? await getAllContracts() : await getMyContracts();
         if (!cancelled) {
           setContracts(payload?.data || []);
         }
@@ -104,7 +106,7 @@ export function ContractsPage() {
 
     load();
     return () => { cancelled = true; };
-  }, [isPrivileged]);
+  }, [displayAll]);
 
   return (
     <section className="page-card contracts-page">
@@ -114,14 +116,26 @@ export function ContractsPage() {
         </div>
         <div className="contracts-page-intro-text">
           <PageHeader
-            title={isPrivileged ? "Tất cả hợp đồng" : "Hợp đồng của tôi"}
+            title={displayAll ? "Tất cả hợp đồng" : "Hợp đồng của tôi"}
             subtitle={
-              isPrivileged
+              displayAll
                 ? "Toàn bộ hợp đồng lao động trong hệ thống."
                 : "Danh sách hợp đồng lao động gắn với hồ sơ nhân viên hiện tại."
             }
           />
-          {countLabel ? <p className="contracts-count-pill">{countLabel}</p> : null}
+          {countLabel ? <p className="contracts-count-pill" style={{ marginBottom: "14px" }}>{countLabel}</p> : null}
+          
+          {/* Action buttons based on role and current view */}
+          {!displayAll && isPrivileged && (
+            <Link to="/contracts/all" className="button-like" style={{ display: "inline-flex", textDecoration: "none", fontSize: "0.85rem", padding: "8px 16px" }}>
+              ⊞ Xem tất cả hợp đồng
+            </Link>
+          )}
+          {displayAll && (
+            <Link to="/contracts" className="ghost-button" style={{ display: "inline-flex", textDecoration: "none" }}>
+              ← Quay lại hợp đồng của tôi
+            </Link>
+          )}
         </div>
       </div>
 
@@ -130,7 +144,7 @@ export function ContractsPage() {
         error={error}
         empty={!loading && !error && contracts.length === 0}
         emptyMessage={
-          isPrivileged
+          displayAll
             ? "Chưa có hợp đồng nào trong hệ thống."
             : "Chưa có hợp đồng nào cho tài khoản của bạn."
         }>
@@ -140,8 +154,8 @@ export function ContractsPage() {
             <article className="contract-card" key={contract._id}>
               <header className="contract-card__head">
                 <div className="contract-card__titles">
-                  {/* Hiển thị tên nhân viên nếu là admin/manager xem tất cả */}
-                  {isPrivileged && contract.employee && (
+                  {/* Hiển thị tên nhân viên nếu đang xem tất cả */}
+                  {displayAll && contract.employee && (
                     <p className="contract-card__employee-name">
                       👤 {contract.employee.fullName || contract.employee.employeeCode || "—"}
                     </p>

@@ -171,6 +171,14 @@ function App() {
           }
         />
         <Route
+          path="contracts/all"
+          element={
+          <RequirePermission check={canAccessContracts}>
+              <ContractsPage showAll={true} />
+            </RequirePermission>
+          }
+        />
+        <Route
           path="users"
           element={
             <RequirePermission check={canAccessUsers}>
