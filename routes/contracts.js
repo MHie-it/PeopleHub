@@ -3,7 +3,7 @@ const router = express.Router();
 const contractController = require("../controllers/contractController");
 const { CheckLogin, CheckRole } = require("../utils/authHandler");
 
-const roles = ["HR", "admin", "Manager"];
+const roles = ["HR", "admin", "Admin", "Manager", "Boss", "Director"];
 
 router.get("/me", CheckLogin, contractController.getMyContracts);
 router.get("/", CheckLogin, CheckRole(roles), contractController.getContracts);

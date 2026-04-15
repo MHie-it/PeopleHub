@@ -1,9 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { DataState } from "../components/DataState";
 import { PageHeader } from "../components/PageHeader";
+import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../lib/errors";
 import { formatDate } from "../lib/formatters";
-import { getMyContracts } from "../services/contractService";
+import { APP_ROLES, hasRole } from "../lib/roles";
+import { getAllContracts, getMyContracts } from "../services/contractService";
+
+// Roles that can see ALL contracts (must match backend roles array)
+const PRIVILEGED_ROLES = [
+  APP_ROLES.ADMIN,
+  APP_ROLES.ADMIN_UPPER,
+  APP_ROLES.HR,
+  APP_ROLES.MANAGER,
+  APP_ROLES.BOSS,
+  APP_ROLES.DIRECTOR,
+];
+
+function canViewAll(user) {
+  return hasRole(user, PRIVILEGED_ROLES);
+}
 
 function formatMoney(value) {
   if (value === null || value === undefined || Number.isNaN(Number(value))) {
@@ -26,23 +42,15 @@ const TYPE_LABELS = {
 };
 
 function formatContractType(type) {
-  if (!type) {
-    return "—";
-  }
+  if (!type) return "—";
   return TYPE_LABELS[type] || type.replace(/_/g, " ");
 }
 
 function statusClassName(status) {
   const s = (status || "").toUpperCase();
-  if (s === "ACTIVE") {
-    return "contract-status contract-status--active";
-  }
-  if (s === "EXPIRED" || s === "TERMINATED" || s === "ENDED") {
-    return "contract-status contract-status--ended";
-  }
-  if (s === "DRAFT" || s === "PENDING") {
-    return "contract-status contract-status--pending";
-  }
+  if (s === "ACTIVE") return "contract-status contract-status--active";
+  if (s === "EXPIRED" || s === "TERMINATED" || s === "ENDED") return "contract-status contract-status--ended";
+  if (s === "DRAFT" || s === "PENDING") return "contract-status contract-status--pending";
   return "contract-status contract-status--neutral";
 }
 
@@ -55,25 +63,22 @@ function ContractDocumentIcon() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round" />
-
       <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>);
-
+    </svg>
+  );
 }
 
 export function ContractsPage() {
+  const { user } = useAuth();
+  const isPrivileged = canViewAll(user);
+
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const countLabel = useMemo(() => {
     const n = contracts.length;
-    if (n === 0) {
-      return "";
-    }
-    if (n === 1) {
-      return "1 hợp đồng";
-    }
+    if (n === 0) return "";
     return `${n} hợp đồng`;
   }, [contracts.length]);
 
@@ -84,26 +89,22 @@ export function ContractsPage() {
       setLoading(true);
       setError("");
       try {
-        const payload = await getMyContracts();
+        const payload = isPrivileged ? await getAllContracts() : await getMyContracts();
         if (!cancelled) {
           setContracts(payload?.data || []);
         }
       } catch (loadError) {
         if (!cancelled) {
-          setError(extractErrorMessage(loadError, "Unable to load contracts"));
+          setError(extractErrorMessage(loadError, "Không thể tải danh sách hợp đồng"));
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
     load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return () => { cancelled = true; };
+  }, [isPrivileged]);
 
   return (
     <section className="page-card contracts-page">
@@ -113,9 +114,13 @@ export function ContractsPage() {
         </div>
         <div className="contracts-page-intro-text">
           <PageHeader
-            title="My Contracts"
-            subtitle="Danh sách hợp đồng lao động gắn với hồ sơ nhân viên hiện tại." />
-
+            title={isPrivileged ? "Tất cả hợp đồng" : "Hợp đồng của tôi"}
+            subtitle={
+              isPrivileged
+                ? "Toàn bộ hợp đồng lao động trong hệ thống."
+                : "Danh sách hợp đồng lao động gắn với hồ sơ nhân viên hiện tại."
+            }
+          />
           {countLabel ? <p className="contracts-count-pill">{countLabel}</p> : null}
         </div>
       </div>
@@ -124,13 +129,23 @@ export function ContractsPage() {
         loading={loading}
         error={error}
         empty={!loading && !error && contracts.length === 0}
-        emptyMessage="Chưa có hợp đồng nào cho tài khoản của bạn.">
+        emptyMessage={
+          isPrivileged
+            ? "Chưa có hợp đồng nào trong hệ thống."
+            : "Chưa có hợp đồng nào cho tài khoản của bạn."
+        }>
 
         <div className="contract-cards">
           {contracts.map((contract) =>
             <article className="contract-card" key={contract._id}>
               <header className="contract-card__head">
                 <div className="contract-card__titles">
+                  {/* Hiển thị tên nhân viên nếu là admin/manager xem tất cả */}
+                  {isPrivileged && contract.employee && (
+                    <p className="contract-card__employee-name">
+                      👤 {contract.employee.fullName || contract.employee.employeeCode || "—"}
+                    </p>
+                  )}
                   <p className="contract-card__label">Số hợp đồng</p>
                   <h3 className="contract-card__no">{contract.contractNo || "—"}</h3>
                   <p className="contract-card__type">{formatContractType(contract.contractType)}</p>
@@ -167,6 +182,6 @@ export function ContractsPage() {
           )}
         </div>
       </DataState>
-    </section>);
-
+    </section>
+  );
 }
